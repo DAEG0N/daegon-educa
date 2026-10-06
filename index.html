@@ -12,48 +12,39 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<aside class="sidebar">
-  <div class="brand"><span>D</span><div><b>Daegon Educa</b><small>GESTÃO ESCOLAR</small></div></div>
-  <div class="school-switch"><small>UNIDADE ATUAL</small><button>Daegon School <span>⌄</span></button></div>
-
-  <nav>
-    <p>GERAL</p>
-    <button class="nav active" data-view="dashboard"><i>⌂</i><span>Início</span></button>
-    <button class="nav" data-view="search"><i>⌕</i><span>Pesquisa global</span></button>
-
-    <p>SECRETARIA</p>
-    <button class="nav" data-view="students"><i>◎</i><span>Alunos</span><em>184</em></button>
-    <button class="nav" data-view="guardians"><i>◌</i><span>Responsáveis</span></button>
-    <button class="nav" data-view="enrollments"><i>▤</i><span>Matrículas</span><em>8</em></button>
-    <button class="nav" data-view="documents"><i>▧</i><span>Documentos</span></button>
-
-    <p>ACADÊMICO</p>
-    <button class="nav" data-view="classes"><i>▦</i><span>Turmas & Grade</span></button>
-    <button class="nav" data-view="diary"><i>≡</i><span>Diário de Classe</span></button>
-    <button class="nav" data-view="attendance"><i>✓</i><span>Frequência</span></button>
-    <button class="nav" data-view="grades"><i>◇</i><span>Notas & Avaliações</span></button>
-    <button class="nav" data-view="reportcards"><i>▣</i><span>Boletins</span><em>7</em></button>
-
-    <p>GESTÃO</p>
-    <button class="nav" data-view="finance"><i>R$</i><span>Financeiro</span></button>
-    <button class="nav" data-view="communication"><i>✦</i><span>Comunicação</span></button>
-    <button class="nav" data-view="portal"><i>↗</i><span>Portal & App</span></button>
-  </nav>
-
-  <div class="sidebar-footer"><div class="avatar">AD</div><div><b>Adilson</b><small>Administrador</small></div><button>⋯</button></div>
-</aside>
-
-<div class="app">
-<header class="topbar">
-  <div><div class="crumb" id="crumb">Geral / Início</div><h1 id="pageTitle">Início</h1></div>
-  <div class="top-actions">
-    <label class="period">Período <select id="periodSelect"><option>2026</option><option>2025</option></select></label>
-    <button class="search-btn" id="searchBtn">⌕ Pesquisar <kbd>Ctrl K</kbd></button>
-    <button class="icon-btn">◔</button>
-    <button class="primary" id="quickBtn">+ Novo</button>
+<header class="global-header">
+  <div class="brand-row">
+    <div class="brand"><span>D</span><div><b>Daegon Educa</b><small>GESTÃO ESCOLAR</small></div></div>
+    <div class="header-actions">
+      <label class="period">Período <select id="periodSelect"><option>2026</option><option>2025</option></select></label>
+      <button class="search-btn" id="searchBtn">⌕ Pesquisar <kbd>Ctrl K</kbd></button>
+      <button class="icon-btn">◔</button>
+      <button class="primary" id="quickBtn">+ Novo</button>
+      <div class="user-pill"><div class="avatar">AD</div><div><b>Adilson</b><small>Administrador</small></div></div>
+    </div>
   </div>
+
+  <nav class="top-nav" aria-label="Navegação principal">
+    <button class="nav active" data-view="dashboard">Início</button>
+    <button class="nav" data-view="students">Alunos</button>
+    <button class="nav" data-view="guardians">Responsáveis</button>
+    <button class="nav" data-view="enrollments">Matrículas</button>
+    <button class="nav" data-view="documents">Documentos</button>
+    <button class="nav" data-view="classes">Turmas & Grade</button>
+    <button class="nav" data-view="diary">Diário de Classe</button>
+    <button class="nav" data-view="attendance">Frequência</button>
+    <button class="nav" data-view="grades">Notas</button>
+    <button class="nav" data-view="reportcards">Boletins</button>
+    <button class="nav" data-view="finance">Financeiro</button>
+    <button class="nav" data-view="communication">Comunicação</button>
+    <button class="nav" data-view="portal">Portal & App</button>
+  </nav>
 </header>
 
+<div class="app">
+<header class="pagebar">
+  <div><div class="crumb" id="crumb">Geral / Início</div><h1 id="pageTitle">Início</h1></div>
+</header>
 <main>
 <section id="dashboard" class="view active">
   <div class="notice"><span>●</span><div><b>4º bimestre em andamento</b><small>Fechamento acadêmico previsto para 18/12/2026</small></div><button data-jump="reportcards">Ver pendências</button></div>
@@ -183,6 +174,8 @@
 </section>
 
 </main>
+</div>
+
 </div>
 
 <div class="modal" id="studentModal"><form id="studentForm"><button type="button" class="close" data-close>×</button><p>NOVO ALUNO</p><h2>Cadastrar aluno</h2><div class="form-grid"><label>Nome<input name="name" required></label><label>Data de nascimento<input name="birth" type="date"></label><label>Turma<select name="class"><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select></label><label>Responsável<input name="guardian" required></label><label>Telefone<input name="phone" placeholder="(79) 99999-9999"></label><label>Situação<select name="status"><option value="active">Ativo</option><option value="pending">Pendente</option></select></label></div><button class="primary">Salvar cadastro</button></form></div>
