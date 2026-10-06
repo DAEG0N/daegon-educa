@@ -2,86 +2,194 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10231d">
-<meta name="description" content="Daegon Educa — gestão acadêmica de alunos, professores, matrículas, disciplinas, calendário, notas e boletins.">
-<title>Daegon Educa — Academic Management</title>
+<meta name="theme-color" content="#17372e">
+<meta name="description" content="Daegon Educa — gestão escolar integrada para secretaria, acadêmico, financeiro e comunicação.">
+<title>Daegon Educa — Gestão Escolar</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <aside class="sidebar">
-<a class="brand" href="#dashboard"><span class="mark">D</span><span><b>Daegon</b><small>Educa</small></span></a>
-<nav>
-<button class="nav active" data-view="dashboard">⌂ <span>Dashboard</span></button>
-<button class="nav" data-view="students">◎ <span>Alunos</span><em>184</em></button>
-<button class="nav" data-view="teachers">◌ <span>Professores</span></button>
-<button class="nav" data-view="enrollments">▤ <span>Matrículas</span></button>
-<button class="nav" data-view="subjects">◇ <span>Disciplinas</span></button>
-<button class="nav" data-view="calendar">▦ <span>Calendário</span></button>
-<button class="nav" data-view="grades">✓ <span>Notas & Boletins</span></button>
-</nav>
-<div class="sidefoot"><div class="user"><b>AD</b><span>Adilson<small>Administrador acadêmico</small></span></div><small>DEMO ESCOLAR</small></div>
+  <div class="brand"><span>D</span><div><b>Daegon Educa</b><small>GESTÃO ESCOLAR</small></div></div>
+  <div class="school-switch"><small>UNIDADE ATUAL</small><button>Daegon School <span>⌄</span></button></div>
+
+  <nav>
+    <p>GERAL</p>
+    <button class="nav active" data-view="dashboard"><i>⌂</i><span>Início</span></button>
+    <button class="nav" data-view="search"><i>⌕</i><span>Pesquisa global</span></button>
+
+    <p>SECRETARIA</p>
+    <button class="nav" data-view="students"><i>◎</i><span>Alunos</span><em>184</em></button>
+    <button class="nav" data-view="guardians"><i>◌</i><span>Responsáveis</span></button>
+    <button class="nav" data-view="enrollments"><i>▤</i><span>Matrículas</span><em>8</em></button>
+    <button class="nav" data-view="documents"><i>▧</i><span>Documentos</span></button>
+
+    <p>ACADÊMICO</p>
+    <button class="nav" data-view="classes"><i>▦</i><span>Turmas & Grade</span></button>
+    <button class="nav" data-view="diary"><i>≡</i><span>Diário de Classe</span></button>
+    <button class="nav" data-view="attendance"><i>✓</i><span>Frequência</span></button>
+    <button class="nav" data-view="grades"><i>◇</i><span>Notas & Avaliações</span></button>
+    <button class="nav" data-view="reportcards"><i>▣</i><span>Boletins</span><em>7</em></button>
+
+    <p>GESTÃO</p>
+    <button class="nav" data-view="finance"><i>R$</i><span>Financeiro</span></button>
+    <button class="nav" data-view="communication"><i>✦</i><span>Comunicação</span></button>
+    <button class="nav" data-view="portal"><i>↗</i><span>Portal & App</span></button>
+  </nav>
+
+  <div class="sidebar-footer"><div class="avatar">AD</div><div><b>Adilson</b><small>Administrador</small></div><button>⋯</button></div>
 </aside>
 
 <div class="app">
-<header class="top">
-<div><p>ACADEMIC MANAGEMENT SYSTEM</p><h1 id="pageTitle">Visão geral</h1></div>
-<div class="actions"><button id="searchBtn" class="ghost">⌕ Buscar <kbd>Ctrl K</kbd></button><button id="themeBtn" class="ghost">◐</button><button id="quickBtn" class="primary">+ Novo cadastro</button></div>
+<header class="topbar">
+  <div><div class="crumb" id="crumb">Geral / Início</div><h1 id="pageTitle">Início</h1></div>
+  <div class="top-actions">
+    <label class="period">Período <select id="periodSelect"><option>2026</option><option>2025</option></select></label>
+    <button class="search-btn" id="searchBtn">⌕ Pesquisar <kbd>Ctrl K</kbd></button>
+    <button class="icon-btn">◔</button>
+    <button class="primary" id="quickBtn">+ Novo</button>
+  </div>
 </header>
+
 <main>
 <section id="dashboard" class="view active">
-<div class="hero"><div><span class="health"><i></i> ano letivo em andamento</span><h2>Gestão acadêmica sem ruído.</h2><p>Cadastros, matrículas, calendário, notas e boletins organizados em um único fluxo.</p></div><button class="accent" data-jump="enrollments">Nova matrícula</button></div>
-<div class="metrics">
-<article><span>Alunos ativos</span><strong>184</strong><small>8 turmas</small></article>
-<article><span>Professores</span><strong>24</strong><small>18 disciplinas</small></article>
-<article><span>Matrículas 2026</span><strong>176</strong><small class="positive">↑ 9% vs. 2025</small></article>
-<article><span>Boletins pendentes</span><strong id="pendingReports">7</strong><small class="warning">fechamento até sexta</small></article>
-</div>
-<div class="dash-grid">
-<article class="panel"><div class="panel-head"><div><p>TURMAS</p><h3>Ocupação</h3></div><button data-jump="students">Ver alunos →</button></div><div class="class-bars"><div><span>6º A</span><i><b style="width:88%"></b></i><em>28/32</em></div><div><span>7º A</span><i><b style="width:78%"></b></i><em>25/32</em></div><div><span>8º A</span><i><b style="width:94%"></b></i><em>30/32</em></div><div><span>9º A</span><i><b style="width:84%"></b></i><em>27/32</em></div></div></article>
-<article class="panel"><div class="panel-head"><div><p>CALENDÁRIO</p><h3>Próximos eventos</h3></div><button data-jump="calendar">Abrir →</button></div><div class="events"><div><b>10 OUT</b><span>Conselho de classe<small>14:00 · Sala 2</small></span></div><div><b>14 OUT</b><span>Início das avaliações<small>Ensino Fundamental II</small></span></div><div><b>25 OUT</b><span>Reunião de responsáveis<small>18:30 · Auditório</small></span></div></div></article>
-<article class="panel"><div class="panel-head"><div><p>NOTAS</p><h3>Fechamento por turma</h3></div><button data-jump="grades">Lançar notas →</button></div><div class="grade-progress"><div><span>6º A</span><b>100%</b><i><em style="width:100%"></em></i></div><div><span>7º A</span><b>86%</b><i><em style="width:86%"></em></i></div><div><span>8º A</span><b>72%</b><i><em style="width:72%"></em></i></div><div><span>9º A</span><b>91%</b><i><em style="width:91%"></em></i></div></div></article>
-<article class="panel"><div class="panel-head"><div><p>ATIVIDADE</p><h3>Últimas alterações</h3></div></div><ul class="activity"><li><i></i><span><b>Nota lançada</b><small>Matemática · 8º A</small></span><time>09:21</time></li><li><i></i><span><b>Aluno matriculado</b><small>Gabriel Santos · 7º A</small></span><time>08:44</time></li><li><i></i><span><b>Calendário atualizado</b><small>Avaliações · 4º bimestre</small></span><time>ontem</time></li></ul></article>
-</div>
+  <div class="notice"><span>●</span><div><b>4º bimestre em andamento</b><small>Fechamento acadêmico previsto para 18/12/2026</small></div><button data-jump="reportcards">Ver pendências</button></div>
+
+  <div class="kpis">
+    <article><span>Alunos ativos</span><strong>184</strong><small>8 turmas ativas</small></article>
+    <article><span>Matrículas concluídas</span><strong>176</strong><small class="ok">95,7% do total</small></article>
+    <article><span>Frequência média</span><strong>94,2%</strong><small>+1,8 p.p. no bimestre</small></article>
+    <article><span>Boletins pendentes</span><strong id="pendingReports">7</strong><small class="warn">exigem revisão</small></article>
+  </div>
+
+  <div class="dashboard-grid">
+    <article class="card">
+      <div class="card-head"><div><p>ACADÊMICO</p><h3>Fechamento das turmas</h3></div><button data-jump="reportcards">Detalhes →</button></div>
+      <div class="closing-list">
+        <div><b>6º A</b><span>Notas confirmadas</span><i><em style="width:100%"></em></i><strong>100%</strong></div>
+        <div><b>7º A</b><span>2 disciplinas pendentes</span><i><em style="width:86%"></em></i><strong>86%</strong></div>
+        <div><b>8º A</b><span>4 disciplinas pendentes</span><i><em style="width:72%"></em></i><strong>72%</strong></div>
+        <div><b>9º A</b><span>1 disciplina pendente</span><i><em style="width:91%"></em></i><strong>91%</strong></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><p>SECRETARIA</p><h3>Pendências de matrícula</h3></div><button data-jump="enrollments">Abrir →</button></div>
+      <div class="pending-list">
+        <div><span class="dot yellow"></span><div><b>Beatriz Lima</b><small>Documento de identidade</small></div><time>há 2h</time></div>
+        <div><span class="dot red"></span><div><b>Arthur Nunes</b><small>Contrato sem assinatura</small></div><time>ontem</time></div>
+        <div><span class="dot"></span><div><b>Helena Costa</b><small>Comprovante de residência</small></div><time>ontem</time></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><p>FINANCEIRO</p><h3>Resumo do mês</h3></div><button data-jump="finance">Detalhes →</button></div>
+      <div class="finance-summary"><div><span>Recebido</span><b>R$ 143.820</b></div><div><span>Em aberto</span><b>R$ 18.460</b></div><div><span>Inadimplência</span><b class="warn-text">6,8%</b></div></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><p>COMUNICAÇÃO</p><h3>Últimos envios</h3></div><button data-jump="communication">Abrir →</button></div>
+      <div class="pending-list">
+        <div><span class="dot"></span><div><b>Reunião de responsáveis</b><small>184 destinatários · App + E-mail</small></div><time>09:40</time></div>
+        <div><span class="dot"></span><div><b>Avaliações do 4º bimestre</b><small>156 destinatários · App</small></div><time>ontem</time></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="search" class="view">
+  <div class="page-toolbar"><div><p>PESQUISA GLOBAL</p><h2>Encontre qualquer registro</h2></div></div>
+  <div class="global-search"><input id="globalSearchInput" placeholder="Nome do aluno, matrícula, responsável, turma..."><button class="primary">Pesquisar</button></div>
+  <div id="globalResults" class="search-results"></div>
 </section>
 
 <section id="students" class="view">
-<div class="toolbar"><div class="segmented"><button class="active" data-student-filter="all">Todos</button><button data-student-filter="active">Ativos</button><button data-student-filter="pending">Pendentes</button></div><button class="primary" id="newStudentBtn">+ Aluno</button></div>
-<div class="table-card"><table><thead><tr><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Status</th><th>Responsável</th><th></th></tr></thead><tbody id="studentRows"></tbody></table></div>
+  <div class="page-toolbar"><div><p>SECRETARIA / CADASTROS</p><h2>Alunos</h2></div><div><button class="secondary" id="exportStudents">Exportar</button><button class="primary" id="newStudentBtn">+ Novo aluno</button></div></div>
+  <div class="filters-row"><select><option>Situação: Todos</option><option>Ativos</option><option>Inativos</option></select><select><option>Turma: Todas</option><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select><input id="studentSearch" placeholder="Pesquisar aluno..."></div>
+  <div class="table-card"><table><thead><tr><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Situação</th><th>Responsável</th><th>Contato</th><th></th></tr></thead><tbody id="studentRows"></tbody></table></div>
 </section>
 
-<section id="teachers" class="view">
-<div class="toolbar"><div><p>CORPO DOCENTE</p><h2>Professores</h2></div><button class="primary" id="newTeacherBtn">+ Professor</button></div>
-<div class="people-grid" id="teacherGrid"></div>
+<section id="guardians" class="view">
+  <div class="page-toolbar"><div><p>SECRETARIA / CADASTROS</p><h2>Responsáveis</h2></div><button class="primary">+ Novo responsável</button></div>
+  <div class="table-card"><table><thead><tr><th>Responsável</th><th>Aluno(s)</th><th>Parentesco</th><th>Telefone</th><th>E-mail</th><th>Portal</th></tr></thead><tbody id="guardianRows"></tbody></table></div>
 </section>
 
 <section id="enrollments" class="view">
-<div class="toolbar"><div><p>MATRÍCULAS</p><h2>Processo 2026</h2></div><button class="primary" id="newEnrollmentBtn">+ Nova matrícula</button></div>
-<div class="enrollment-grid"><article><span>Novas</span><strong>42</strong><small>24%</small></article><article><span>Rematrículas</span><strong>134</strong><small>76%</small></article><article><span>Pendentes</span><strong>8</strong><small>documentação</small></article></div>
-<div class="pipeline" id="enrollmentPipeline"></div>
+  <div class="page-toolbar"><div><p>SECRETARIA</p><h2>Matrículas 2026</h2></div><button class="primary" id="newEnrollmentBtn">+ Nova matrícula</button></div>
+  <div class="stage-tabs"><button class="active">Em andamento <b>8</b></button><button>Concluídas <b>176</b></button><button>Canceladas <b>3</b></button></div>
+  <div class="enroll-layout">
+    <div class="pipeline" id="enrollmentPipeline"></div>
+    <aside class="checklist card"><p>CHECKLIST DA MATRÍCULA</p><h3>Documentos obrigatórios</h3><label><input type="checkbox" checked> Documento do aluno</label><label><input type="checkbox" checked> Documento do responsável</label><label><input type="checkbox"> Comprovante de residência</label><label><input type="checkbox"> Contrato assinado</label><label><input type="checkbox" checked> Histórico escolar</label></aside>
+  </div>
 </section>
 
-<section id="subjects" class="view">
-<div class="toolbar"><div><p>GRADE CURRICULAR</p><h2>Disciplinas</h2></div><button class="primary" id="newSubjectBtn">+ Disciplina</button></div>
-<div class="subject-grid" id="subjectGrid"></div>
+<section id="documents" class="view">
+  <div class="page-toolbar"><div><p>SECRETARIA DIGITAL</p><h2>Documentos</h2></div><button class="primary">+ Emitir documento</button></div>
+  <div class="module-grid" id="documentGrid"></div>
 </section>
 
-<section id="calendar" class="view">
-<div class="calendar-head"><div><p>CALENDÁRIO ACADÊMICO</p><h2>Outubro 2026</h2></div><button class="primary" id="newEventBtn">+ Evento</button></div>
-<div class="calendar"><div class="weekdays"><span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span></div><div id="calendarGrid" class="calendar-grid"></div></div>
+<section id="classes" class="view">
+  <div class="page-toolbar"><div><p>ACADÊMICO</p><h2>Turmas & Grade Curricular</h2></div><button class="primary">+ Nova turma</button></div>
+  <div class="class-grid" id="classGrid"></div>
+</section>
+
+<section id="diary" class="view">
+  <div class="page-toolbar"><div><p>ACADÊMICO</p><h2>Diário de Classe</h2></div><div class="inline-filters"><select id="diaryClass"><option>8º A</option><option>7º A</option></select><select><option>Matemática</option><option>Português</option></select></div></div>
+  <div class="diary-tabs"><button class="active" data-diary-tab="lessons">Registro de aula</button><button data-diary-tab="attendance">Frequência</button><button data-diary-tab="content">Conteúdo ministrado</button><button data-diary-tab="confirm">Confirmar diário</button></div>
+  <div id="diaryContent" class="card diary-content"></div>
+</section>
+
+<section id="attendance" class="view">
+  <div class="page-toolbar"><div><p>ACADÊMICO</p><h2>Frequência em lote</h2></div><div class="inline-filters"><select><option>8º A</option><option>7º A</option></select><input type="date" value="2026-10-06"></div></div>
+  <div class="attendance-actions"><button class="secondary" id="markAllPresent">Marcar todos presentes</button><span>Legenda: <b class="present">P</b> presente · <b class="absent">F</b> falta</span></div>
+  <div class="table-card"><table><thead><tr><th>Aluno</th><th>Presença</th><th>Justificativa</th><th>Observação</th></tr></thead><tbody id="attendanceRows"></tbody></table></div>
 </section>
 
 <section id="grades" class="view">
-<div class="toolbar"><div><p>AVALIAÇÃO</p><h2>Notas & Boletins</h2></div><div class="grade-actions"><select><option>8º A</option><option>7º A</option><option>9º A</option></select><select><option>Matemática</option><option>Português</option><option>História</option></select><button class="primary" id="closeReportsBtn">Fechar boletins</button></div></div>
-<div class="grade-table"><table><thead><tr><th>Aluno</th><th>1º Bim.</th><th>2º Bim.</th><th>3º Bim.</th><th>4º Bim.</th><th>Média</th><th>Situação</th></tr></thead><tbody id="gradeRows"></tbody></table></div>
+  <div class="page-toolbar"><div><p>ACADÊMICO / AVALIAÇÕES</p><h2>Digitação de notas</h2></div><div class="inline-filters"><select><option>8º A</option></select><select><option>Matemática</option></select><select><option>4º Bimestre</option></select></div></div>
+  <div class="grade-tools"><button class="secondary" id="applyGradeBtn">Aplicar nota em lote</button><button class="secondary">Imprimir planilha</button><button class="primary" id="confirmGradesBtn">Confirmar notas</button></div>
+  <div class="grade-table"><table><thead><tr><th>Aluno</th><th>AV1</th><th>AV2</th><th>Trabalho</th><th>Média</th><th>Faltas</th><th>Status</th></tr></thead><tbody id="gradeRows"></tbody></table></div>
 </section>
-</main></div>
 
-<div class="modal" id="studentModal"><form id="studentForm"><button type="button" class="close" data-close>×</button><p>NOVO ALUNO</p><h2>Cadastrar aluno</h2><label>Nome<input name="name" required></label><label>Turma<select name="class"><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select></label><label>Responsável<input name="guardian" required></label><button class="primary">Salvar aluno</button></form></div>
-<div class="modal" id="enrollmentModal"><form id="enrollmentForm"><button type="button" class="close" data-close>×</button><p>NOVA MATRÍCULA</p><h2>Iniciar matrícula</h2><label>Aluno<input name="name" required></label><label>Série<select name="class"><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select></label><label>Tipo<select name="type"><option>Nova</option><option>Rematrícula</option></select></label><button class="primary">Criar matrícula</button></form></div>
-<div class="command" id="command"><div><input id="commandInput" placeholder="Buscar aluno, professor, turma ou página..."><div id="commandResults"></div></div></div><div class="toast" id="toast"></div>
+<section id="reportcards" class="view">
+  <div class="page-toolbar"><div><p>ACADÊMICO</p><h2>Central de Boletins</h2></div><div><button class="secondary">Imprimir teste</button><button class="primary" id="publishReportsBtn">Publicar notas</button></div></div>
+  <div class="report-grid">
+    <article class="card report-settings"><p>CONFIGURAÇÃO</p><h3>Boletim · Fundamental II</h3><label><input type="checkbox" checked> Exibir faltas</label><label><input type="checkbox" checked> Exibir frequência</label><label><input type="checkbox" checked> Exibir situação final</label><label><input type="checkbox"> Exibir ranking</label><label><input type="checkbox" checked> Exibir assinaturas</label></article>
+    <article class="report-preview"><div class="sheet"><header><b>DAEGON SCHOOL</b><span>Boletim Escolar · 2026</span></header><div class="student-line"><b>Mariana Alves</b><span>Matrícula 2026-0818 · 8º A</span></div><table><thead><tr><th>Disciplina</th><th>1º</th><th>2º</th><th>3º</th><th>4º</th><th>Média</th></tr></thead><tbody><tr><td>Matemática</td><td>8,5</td><td>9,0</td><td>8,0</td><td>9,2</td><td>8,7</td></tr><tr><td>Português</td><td>7,8</td><td>8,2</td><td>8,4</td><td>8,6</td><td>8,3</td></tr><tr><td>História</td><td>9,0</td><td>8,8</td><td>9,1</td><td>8,9</td><td>9,0</td></tr></tbody></table></div></article>
+  </div>
+</section>
+
+<section id="finance" class="view">
+  <div class="page-toolbar"><div><p>GESTÃO FINANCEIRA</p><h2>Financeiro</h2></div><button class="primary">+ Novo lançamento</button></div>
+  <div class="kpis"><article><span>Receita prevista</span><strong>R$ 154.300</strong><small>outubro</small></article><article><span>Recebido</span><strong>R$ 143.820</strong><small class="ok">93,2%</small></article><article><span>Em aberto</span><strong>R$ 18.460</strong><small>22 títulos</small></article><article><span>Inadimplência</span><strong>6,8%</strong><small class="warn">12 responsáveis</small></article></div>
+  <div class="table-card"><table><thead><tr><th>Responsável</th><th>Aluno</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Forma</th></tr></thead><tbody id="financeRows"></tbody></table></div>
+</section>
+
+<section id="communication" class="view">
+  <div class="page-toolbar"><div><p>COMUNICAÇÃO</p><h2>Mensagens & Comunicados</h2></div><button class="primary" id="newMessageBtn">+ Novo comunicado</button></div>
+  <div class="comm-grid"><article class="card"><p>NOVO ENVIO</p><h3>Comunicado rápido</h3><label>Público<select><option>Todos os responsáveis</option><option>Turma 8º A</option><option>Professores</option></select></label><label>Canal<div class="channels"><button class="active">App</button><button>E-mail</button><button>SMS</button></div></label><label>Mensagem<textarea placeholder="Digite o comunicado..."></textarea></label><button class="primary">Enviar comunicado</button></article><article class="card"><p>HISTÓRICO</p><h3>Últimos comunicados</h3><div class="pending-list"><div><span class="dot"></span><div><b>Reunião de responsáveis</b><small>App + E-mail · 184 destinatários</small></div><time>Hoje</time></div><div><span class="dot"></span><div><b>Avaliações do 4º bimestre</b><small>App · 156 destinatários</small></div><time>Ontem</time></div></div></article></div>
+</section>
+
+<section id="portal" class="view">
+  <div class="page-toolbar"><div><p>PORTAIS</p><h2>Portal & App</h2></div></div>
+  <div class="module-grid">
+    <article class="module-card"><span>AL</span><h3>Portal do Aluno</h3><p>Boletim, frequência, arquivos, agenda e atividades.</p><button class="secondary">Visualizar perfil</button></article>
+    <article class="module-card"><span>RP</span><h3>Portal do Responsável</h3><p>Desempenho, financeiro, comunicados e matrícula online.</p><button class="secondary">Visualizar perfil</button></article>
+    <article class="module-card"><span>PR</span><h3>Portal do Professor</h3><p>Diário, frequência, notas, conteúdos e materiais.</p><button class="secondary">Visualizar perfil</button></article>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="modal" id="studentModal"><form id="studentForm"><button type="button" class="close" data-close>×</button><p>NOVO ALUNO</p><h2>Cadastrar aluno</h2><div class="form-grid"><label>Nome<input name="name" required></label><label>Data de nascimento<input name="birth" type="date"></label><label>Turma<select name="class"><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select></label><label>Responsável<input name="guardian" required></label><label>Telefone<input name="phone" placeholder="(79) 99999-9999"></label><label>Situação<select name="status"><option value="active">Ativo</option><option value="pending">Pendente</option></select></label></div><button class="primary">Salvar cadastro</button></form></div>
+
+<div class="modal" id="enrollmentModal"><form id="enrollmentForm"><button type="button" class="close" data-close>×</button><p>NOVA MATRÍCULA</p><h2>Iniciar processo</h2><div class="form-grid"><label>Aluno<input name="name" required></label><label>Série<select name="class"><option>6º A</option><option>7º A</option><option>8º A</option><option>9º A</option></select></label><label>Tipo<select name="type"><option>Nova</option><option>Rematrícula</option></select></label><label>Turno<select><option>Matutino</option><option>Vespertino</option></select></label></div><button class="primary">Criar matrícula</button></form></div>
+
+<div class="command" id="command"><div class="command-box"><input id="commandInput" placeholder="Pesquisar aluno, matrícula, módulo..."><div id="commandResults"></div><footer>Ctrl K para abrir · Esc para fechar</footer></div></div>
+<div class="toast" id="toast"></div>
 <script src="app.js"></script>
 </body></html>
