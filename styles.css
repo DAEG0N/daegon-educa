@@ -329,3 +329,38 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
   .profile-photo-actions{flex-direction:column-reverse}
   .profile-photo-actions button{width:100%}
 }
+
+
+/* Passo 8 — RIA */
+.routine-entry-card{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px}
+.routine-entry-card p,.ria-summary p,.ria-start-state p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}
+.routine-entry-card h3,.ria-summary h3,.ria-start-state h3{margin:4px 0;font-size:15px}
+.routine-entry-card small,.ria-start-state small{font-size:8px;color:var(--muted)}
+.ria-period-control label{display:grid;gap:4px;font-size:8px;color:var(--muted)}
+.ria-period-control select{min-width:220px;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px}
+.ria-start-state{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.ria-summary{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+.ria-progress-meta{display:flex;align-items:center;gap:9px}.ria-progress-meta strong{font:14px var(--mono)}
+.ria-progress-track{grid-column:1/-1;height:7px;background:#edf1ee;border-radius:99px;overflow:hidden}
+.ria-progress-track span{display:block;height:100%;width:0;background:var(--green);transition:width .25s ease}
+.ria-source-note{font-size:8px;color:var(--muted);padding:8px 2px 12px}
+.ria-items{display:grid;gap:10px}
+.ria-item{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start}
+.ria-item-order{font:17px var(--mono);color:#9cab9f;padding-top:2px}
+.ria-item-main{min-width:0}.ria-item-title-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.ria-item-title-row h3{margin:5px 0 0;font-size:11px;line-height:1.4}
+.ria-source-badge{display:inline-block;font:7px var(--mono);letter-spacing:.06em;color:var(--green);background:#eef5f0;border:1px solid #d8e7dc;border-radius:99px;padding:4px 6px}
+.ria-dependency{display:grid;gap:3px;margin-top:9px;padding:8px 10px;background:#fff8e8;border:1px solid #ead9a8;border-radius:6px}
+.ria-dependency b{font-size:8px}.ria-dependency span{font-size:8px;color:var(--muted);line-height:1.45}
+.ria-item-controls{display:grid;grid-template-columns:150px minmax(200px,1fr) auto auto;gap:8px;align-items:end;margin-top:10px}
+.ria-item-controls label{display:grid;gap:4px;font-size:8px;color:var(--muted)}
+.ria-item-controls select,.ria-item-controls input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:8px;outline:0}
+.ria-open-btn:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){.ria-item-controls{grid-template-columns:1fr 1fr}.ria-notes-label{grid-column:span 2}}
+@media(max-width:600px){
+  .routine-entry-card,.ria-start-state,.ria-item-title-row{align-items:flex-start;flex-direction:column}
+  .ria-item{grid-template-columns:1fr}.ria-item-order{font-size:12px}
+  .ria-item-controls{grid-template-columns:1fr}.ria-notes-label{grid-column:auto}
+  .ria-item-controls button{width:100%}
+  .ria-period-control select{min-width:0;width:100%}
+}
