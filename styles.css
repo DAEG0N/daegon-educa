@@ -258,3 +258,44 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
 .lex-class-toolbar{display:grid;grid-template-columns:1fr 1.3fr 1fr auto;gap:8px;align-items:end;margin-bottom:10px}
 @media(max-width:1000px){.integration-shell{grid-template-columns:1fr}.integration-tree{max-height:330px;overflow:auto}.lex-grid{grid-template-columns:1fr 1fr}.lex-class-toolbar{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.lex-grid,.lex-inline,.lex-class-toolbar{grid-template-columns:1fr}.lex-grid .wide{grid-column:auto}}
+
+
+/* Passo 6 — Pendências documentais e cobrança de histórico */
+.doc-report-filters{margin-bottom:12px}
+.doc-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.doc-filter-grid label{display:grid;gap:5px;font-size:9px}
+.doc-filter-grid select{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px;outline:0}
+.doc-filter-groups{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.doc-filter-groups fieldset{border:1px solid var(--line);border-radius:7px;padding:10px;display:grid;gap:7px}
+.doc-filter-groups legend{font-size:8px;color:var(--muted);padding:0 4px}
+.doc-filter-groups label{font-size:9px;display:flex;align-items:center;gap:6px}
+.doc-filter-groups small{font-size:8px;color:var(--muted);line-height:1.45}
+.doc-filter-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+.doc-results-card{padding-bottom:8px}.doc-results-table table{min-width:1500px}
+.doc-group-row td{background:#f2f5f3;font:8px var(--mono);letter-spacing:.04em;color:var(--green);font-weight:600}
+.doc-overdue{color:var(--red);font-weight:700}
+.doc-recent{display:block;font-size:7px;color:var(--muted);margin-top:3px;font-weight:400}
+.doc-charge-btn:disabled{opacity:.45;cursor:not-allowed}
+.doc-reminder-box{width:min(650px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:20px;position:relative}
+.doc-reminder-box>p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}.doc-reminder-box h2{margin:4px 0 12px;font-size:19px}
+.doc-reminder-meta{display:flex;flex-wrap:wrap;gap:8px 16px;background:var(--bg);border-radius:6px;padding:10px;margin-bottom:12px}
+.doc-reminder-meta span{font-size:8px;color:var(--muted)}.doc-reminder-box label{display:grid;gap:5px;font-size:9px}
+.doc-reminder-box textarea{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:10px;resize:vertical;outline:0;line-height:1.5}
+.doc-reminder-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+@media(max-width:900px){.doc-filter-grid,.doc-filter-groups{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.doc-filter-grid,.doc-filter-groups{grid-template-columns:1fr}.doc-filter-actions,.doc-reminder-actions{flex-direction:column-reverse}.doc-filter-actions button,.doc-reminder-actions button{width:100%}}
+@media print{
+  body.doc-print-mode .global-header,
+  body.doc-print-mode .pagebar,
+  body.doc-print-mode #documents .page-toolbar,
+  body.doc-print-mode #documents .doc-report-filters,
+  body.doc-print-mode #documents #docLocked,
+  body.doc-print-mode #documents .doc-charge-btn,
+  body.doc-print-mode .toast{display:none!important}
+  body.doc-print-mode .view{display:none!important}
+  body.doc-print-mode #documents.view{display:block!important}
+  body.doc-print-mode #docManager{display:block!important}
+  body.doc-print-mode .doc-results-card{border:0;box-shadow:none;padding:0}
+  body.doc-print-mode .doc-results-table{overflow:visible}
+  body.doc-print-mode .doc-results-table table{min-width:0;font-size:8pt}
+}
