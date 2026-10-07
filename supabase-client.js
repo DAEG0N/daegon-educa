@@ -205,7 +205,7 @@
   async function listClasses(periodId) {
     if (!state.profile) return [];
     let q = sb.from("classes")
-      .select("id,name,unit_id,academic_period_id,active")
+      .select("id,name,unit_id,course_id,grade_level,academic_period_id,active")
       .eq("institution_id", state.profile.institution_id)
       .eq("active", true)
       .order("name");
@@ -394,6 +394,124 @@
     if(error) throw error;
   }
 
+
+  async function listAcademicCourses() {
+    if (!state.profile) return [];
+    const { data, error } = await sb.from("academic_courses")
+      .select("id,name,code,active")
+      .eq("institution_id", state.profile.institution_id)
+      .eq("active", true)
+      .order("name");
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function listDocumentTypes() {
+    if (!state.profile) return [];
+    const { data, error } = await sb.from("document_types")
+      .select("id,name,code,default_due_days,active")
+      .eq("institution_id", state.profile.institution_id)
+      .eq("active", true)
+      .order("name");
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function listDocumentPendencies() {
+    if (!state.profile) return [];
+    const institutionId = state.profile.institution_id;
+    const { data: docs, error: docsError } = await sb.from("student_documents")
+      .select("id,student_id,enrollment_id,document_type_id,status,due_date,created_at,updated_at")
+      .eq("institution_id", institutionId)
+      .order("created_at", { ascending: true });
+    if (docsError) throw docsError;
+    if (!docs?.length) return [];
+
+    const uniq = values => [...new Set(values.filter(Boolean))];
+    const studentIds = uniq(docs.map(x => x.student_id));
+    const enrollmentIds = uniq(docs.map(x => x.enrollment_id));
+    const typeIds = uniq(docs.map(x => x.document_type_id));
+
+    const [studentsRes, enrollmentsRes, typesRes, reminderRes, guardianLinksRes] = await Promise.all([
+      sb.from("students").select("id,full_name,registration_number").in("id", studentIds),
+      enrollmentIds.length ? sb.from("enrollments").select("id,student_id,class_id,academic_period_id,status,enrolled_on,financial_guardian_id").in("id", enrollmentIds) : Promise.resolve({data:[],error:null}),
+      sb.from("document_types").select("id,name,code,default_due_days").in("id", typeIds),
+      sb.from("document_reminders").select("id,student_document_id,guardian_id,status,prepared_at,sent_at").in("student_document_id", docs.map(x=>x.id)).order("prepared_at",{ascending:false}),
+      sb.from("student_guardians").select("student_id,guardian_id,is_primary,is_financial").in("student_id", studentIds)
+    ]);
+    for (const res of [studentsRes,enrollmentsRes,typesRes,reminderRes,guardianLinksRes]) if (res.error) throw res.error;
+
+    const enrollments = enrollmentsRes.data || [];
+    const classIds = uniq(enrollments.map(x=>x.class_id));
+    const periodIds = uniq(enrollments.map(x=>x.academic_period_id));
+    const financialGuardianIds = uniq(enrollments.map(x=>x.financial_guardian_id));
+    const guardianLinkIds = uniq((guardianLinksRes.data||[]).map(x=>x.guardian_id));
+    const guardianIds = uniq([...financialGuardianIds,...guardianLinkIds]);
+
+    const [classesRes,periodsRes,coursesRes,guardiansRes] = await Promise.all([
+      classIds.length ? sb.from("classes").select("id,name,grade_level,course_id,academic_period_id,unit_id").in("id",classIds) : Promise.resolve({data:[],error:null}),
+      periodIds.length ? sb.from("academic_periods").select("id,name,year,status").in("id",periodIds) : Promise.resolve({data:[],error:null}),
+      sb.from("academic_courses").select("id,name,code").eq("institution_id",institutionId),
+      guardianIds.length ? sb.from("guardians").select("id,full_name,phone,email").in("id",guardianIds) : Promise.resolve({data:[],error:null})
+    ]);
+    for (const res of [classesRes,periodsRes,coursesRes,guardiansRes]) if (res.error) throw res.error;
+
+    const map = arr => new Map((arr||[]).map(x=>[x.id,x]));
+    const students=map(studentsRes.data), enrollmentMap=map(enrollments), types=map(typesRes.data),
+      classes=map(classesRes.data), periods=map(periodsRes.data), courses=map(coursesRes.data), guardians=map(guardiansRes.data);
+    const guardianLinks=guardianLinksRes.data||[];
+    const reminders=reminderRes.data||[];
+
+    const addDays=(value,days)=>{
+      if(!value)return null;
+      const d=new Date(value); if(Number.isNaN(d.getTime()))return null;
+      d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);
+    };
+
+    return docs.map(doc=>{
+      const student=students.get(doc.student_id)||null;
+      const enrollment=enrollmentMap.get(doc.enrollment_id)||null;
+      const type=types.get(doc.document_type_id)||null;
+      const classRow=enrollment?classes.get(enrollment.class_id)||null:null;
+      const period=enrollment?periods.get(enrollment.academic_period_id)||null:null;
+      const course=classRow?.course_id?courses.get(classRow.course_id)||null:null;
+      const links=guardianLinks.filter(x=>x.student_id===doc.student_id);
+      const financialLink=links.find(x=>x.is_financial)||links.find(x=>x.is_primary)||links[0]||null;
+      const guardianId=enrollment?.financial_guardian_id||financialLink?.guardian_id||null;
+      const guardian=guardianId?guardians.get(guardianId)||null:null;
+      const latest=reminders.find(x=>x.student_document_id===doc.id)||null;
+      const dueDays=type?.default_due_days??30;
+      const deadline=doc.due_date||addDays(doc.created_at,dueDays);
+      return { ...doc, student, enrollment, document_type:type, class_row:classRow, period, course, guardian, latest_reminder:latest, deadline, due_days:dueDays };
+    });
+  }
+
+  async function prepareDocumentReminder(row, message) {
+    if (!state.profile) throw new Error("authentication_required");
+    const { data, error } = await sb.from("document_reminders").insert({
+      institution_id: state.profile.institution_id,
+      student_document_id: row.id,
+      student_id: row.student_id,
+      guardian_id: row.guardian?.id || null,
+      channel: "whatsapp",
+      message,
+      status: "prepared",
+      created_by: state.profile.id
+    }).select("id,status,prepared_at").single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function markDocumentReminderSent(id) {
+    const { data, error } = await sb.from("document_reminders")
+      .update({ status:"sent", sent_at:new Date().toISOString() })
+      .eq("id", id)
+      .select("id,status,sent_at")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
   window.DaegonAuth = {
     sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword,
@@ -405,6 +523,8 @@
     listLearningPlatformUsers, getLearningPlatformUser, saveLearningPlatformUser,
     listLearningProfiles, addLearningProfile, removeLearningProfile,
     listLearningGuardians, getLearningGuardianLink, setLearningGuardian,
-    listLearningClassLinks, addLearningClassLink, removeLearningClassLink
+    listLearningClassLinks, addLearningClassLink, removeLearningClassLink,
+    listAcademicCourses, listDocumentTypes, listDocumentPendencies,
+    prepareDocumentReminder, markDocumentReminderSent
   };
 })();
