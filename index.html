@@ -194,7 +194,12 @@
 
 <section id="holidays" class="view">
   <div class="page-toolbar">
-    <div><p>CONFIGURAÇÃO / CALENDÁRIO</p><h2>Feriados e datas imprensadas</h2></div>
+    <div><p>CONFIGURAÇÃO / CALENDÁRIO</p><h2>Feriados</h2></div>
+    <div class="inline-filters">
+      <label class="holiday-year-label">Ano de referência
+        <select id="holidayYear"></select>
+      </label>
+    </div>
   </div>
 
   <div id="holidayLocked" class="card">
@@ -207,42 +212,46 @@
   <div id="holidayManager" class="holiday-layout" hidden>
     <form id="holidayForm" class="card holiday-form">
       <div class="card-head">
-        <div><p id="holidayFormEyebrow">NOVO CADASTRO</p><h3 id="holidayFormTitle">Cadastrar data</h3></div>
+        <div><p id="holidayFormEyebrow">NOVO CADASTRO</p><h3 id="holidayFormTitle">Cadastrar feriado</h3></div>
       </div>
 
       <input type="hidden" id="holidayId">
 
       <div class="holiday-grid">
-        <label>Tipo
-          <select id="holidayKind" required>
-            <option value="holiday">Feriado</option>
-            <option value="bridge_day">Data imprensada</option>
-          </select>
-        </label>
-
-        <label>Data
+        <label>Data do feriado
           <input id="holidayDate" type="date" required>
         </label>
 
-        <label class="wide">Nome
+        <label>Feriado
           <input id="holidayName" required>
         </label>
 
-        <label class="wide">Unidade
-          <select id="holidayUnit">
-            <option value="">Todas as unidades</option>
+        <label>Efeito financeiro?
+          <select id="holidayFinance">
+            <option value="yes" selected>Sim</option>
+            <option value="no">Não</option>
           </select>
         </label>
 
-        <div class="holiday-check wide">
-          <label><input id="holidayActive" type="checkbox" checked> Cadastro ativo</label>
-          <label><input id="holidayFinance" type="checkbox" checked> Ativo para efeito financeiro</label>
-        </div>
+        <label>Efeito na biblioteca?
+          <select id="holidayLibrary">
+            <option value="yes" selected>Sim</option>
+            <option value="no">Não</option>
+          </select>
+        </label>
+
+        <label class="wide">Unidade onde o feriado ocorre
+          <select id="holidayUnit">
+            <option value="">Sem unidade específica</option>
+          </select>
+        </label>
+
+        <label class="holiday-active wide"><input id="holidayActive" type="checkbox" checked> Cadastro ativo</label>
       </div>
 
       <div class="finance-rule-note">
         <b>Efeito financeiro</b>
-        <span>Quando esta opção estiver ativa, o dia deve ser considerado sem cobrança de juros e multa.</span>
+        <span>Quando marcado como “Sim”, o dia é considerado para não cobrar juros e multa, conforme o procedimento.</span>
       </div>
 
       <div class="holiday-actions">
@@ -259,10 +268,10 @@
       <div class="table-card holiday-table">
         <table>
           <thead>
-            <tr><th>Data</th><th>Nome</th><th>Tipo</th><th>Unidade</th><th>Financeiro</th><th>Status</th><th></th></tr>
+            <tr><th>Data</th><th>Feriado</th><th>Efeito financeiro?</th><th>Efeito na biblioteca?</th><th></th></tr>
           </thead>
           <tbody id="holidayRows">
-            <tr><td colspan="7">Nenhuma data cadastrada.</td></tr>
+            <tr><td colspan="5">Nenhum feriado cadastrado.</td></tr>
           </tbody>
         </table>
       </div>
