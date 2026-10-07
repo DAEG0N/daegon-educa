@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=7">
+<link rel="stylesheet" href="./styles.css?v=8">
 </head>
 <body>
 <header class="global-header">
@@ -31,6 +31,7 @@
     <button class="nav" data-view="holidays">Feriados</button>
     <button class="nav" data-view="students">Alunos</button>
     <button class="nav" data-view="guardians">Responsáveis</button>
+    <button class="nav" data-view="teachers">Professores</button>
     <button class="nav" data-view="enrollments">Matrículas</button>
     <button class="nav" data-view="documents">Documentos</button>
     <button class="nav" data-view="classes">Turmas & Grade</button>
@@ -294,6 +295,174 @@
 <section id="guardians" class="view">
   <div class="page-toolbar"><div><p>SECRETARIA / CADASTROS</p><h2>Responsáveis</h2></div><button class="primary">+ Novo responsável</button></div>
   <div class="table-card"><table><thead><tr><th>Responsável</th><th>Aluno(s)</th><th>Parentesco</th><th>Telefone</th><th>E-mail</th><th>Portal</th></tr></thead><tbody id="guardianRows"></tbody></table></div>
+</section>
+
+
+<section id="teachers" class="view">
+  <div class="page-toolbar">
+    <div><p>ACADÊMICO / CADASTROS</p><h2>Professores</h2></div>
+    <button class="primary" id="newTeacherBtn" type="button">+ Novo professor</button>
+  </div>
+
+  <div id="teacherLocked" class="card">
+    <div class="agenda-empty">
+      <b>Entre com uma conta autorizada</b>
+      <small>Administrador, Secretaria ou Acadêmico podem cadastrar e alterar professores.</small>
+    </div>
+  </div>
+
+  <div id="teacherManager" class="teacher-layout" hidden>
+    <aside class="card teacher-list-card">
+      <div class="teacher-search">
+        <input id="teacherSearchInput" placeholder="Pesquisar professor">
+      </div>
+      <div id="teacherList" class="teacher-list">
+        <div class="agenda-empty"><b>Nenhum professor cadastrado</b><small>Os professores reais aparecerão aqui.</small></div>
+      </div>
+    </aside>
+
+    <div class="card teacher-editor">
+      <div id="teacherEmpty" class="agenda-empty">
+        <b>Selecione ou cadastre um professor</b>
+        <small>O cadastro será salvo diretamente no banco.</small>
+      </div>
+
+      <div id="teacherEditorContent" hidden>
+        <div class="teacher-editor-head">
+          <div><p id="teacherEditorEyebrow">NOVO PROFESSOR</p><h3 id="teacherEditorTitle">Cadastro de professor</h3></div>
+          <span id="teacherStatusBadge" class="status active">Ativo</span>
+        </div>
+
+        <div class="teacher-tabs">
+          <button class="active" type="button" data-teacher-tab="personal">Professor</button>
+          <button type="button" data-teacher-tab="address">Endereço</button>
+          <button type="button" data-teacher-tab="subjects">Disciplinas</button>
+          <button type="button" data-teacher-tab="allocations">Turmas e disciplinas alocadas</button>
+          <button type="button" data-teacher-tab="complementary">Dados complementares</button>
+        </div>
+
+        <form id="teacherForm">
+          <input type="hidden" id="teacherId">
+
+          <div class="teacher-tab-panel active" data-teacher-panel="personal">
+            <div class="teacher-grid">
+              <label class="wide">Nome do professor<input id="teacherName" required></label>
+              <label>Professor ativo
+                <select id="teacherStatus"><option value="active">Sim</option><option value="inactive">Não</option></select>
+              </label>
+              <label>Sexo<input id="teacherGender"></label>
+              <label>Estado civil<input id="teacherMaritalStatus"></label>
+              <label>Data de nascimento<input id="teacherBirthDate" type="date"></label>
+              <label>Cor ou raça<input id="teacherRaceColor"></label>
+              <label>Celular<input id="teacherPhone"></label>
+              <label>CPF<input id="teacherCpf"></label>
+              <label>RG<input id="teacherRg"></label>
+              <label>Órgão emissor<input id="teacherRgIssuer"></label>
+              <label>Data de emissão<input id="teacherRgIssueDate" type="date"></label>
+              <label>Pai<input id="teacherFather"></label>
+              <label>Mãe<input id="teacherMother"></label>
+              <label>Apelido<input id="teacherNickname"></label>
+              <label>E-mail<input id="teacherEmail" type="email"></label>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel" data-teacher-panel="address">
+            <div class="teacher-grid">
+              <label class="wide">Endereço
+                <textarea id="teacherAddress" rows="6"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel" data-teacher-panel="subjects">
+            <div id="teacherNeedsSaveSubjects" class="agenda-empty">
+              <b>Salve o professor primeiro</b>
+              <small>Depois será possível adicionar somente as disciplinas que ele ministra.</small>
+            </div>
+            <div id="teacherSubjectsManager" hidden>
+              <div class="teacher-dual-list">
+                <div>
+                  <h4>Não participantes</h4>
+                  <select id="teacherAvailableSubjects" size="12"></select>
+                  <button class="secondary" id="teacherAddSubjectBtn" type="button">Adicionar</button>
+                </div>
+                <div>
+                  <h4>Participantes</h4>
+                  <select id="teacherSelectedSubjects" size="12"></select>
+                  <button class="secondary" id="teacherRemoveSubjectBtn" type="button">Remover</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel" data-teacher-panel="allocations">
+            <div id="teacherNeedsSaveAllocation" class="agenda-empty">
+              <b>Salve o professor primeiro</b>
+              <small>Depois será possível alocá-lo nas turmas.</small>
+            </div>
+            <div id="teacherAllocationManager" hidden>
+              <div class="allocation-toolbar">
+                <label>Período<select id="teacherPeriod"></select></label>
+                <label>Turma<select id="teacherClass"></select></label>
+                <label>Disciplina<select id="teacherAllocationSubject"></select></label>
+                <label>CH<input id="teacherWorkload" type="number" min="0" step="0.5"></label>
+                <button class="primary" id="teacherAllocateBtn" type="button">Alocar</button>
+              </div>
+              <div class="table-card">
+                <table>
+                  <thead><tr><th>Turma</th><th>Disciplina</th><th>CH</th><th></th></tr></thead>
+                  <tbody id="teacherAssignmentRows"><tr><td colspan="4">Nenhuma alocação cadastrada.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel" data-teacher-panel="complementary">
+            <div class="teacher-grid">
+              <label>Matrícula<input id="teacherRegistration"></label>
+              <label>Identificação no INEP<input id="teacherInep"></label>
+              <label>Data de admissão<input id="teacherAdmissionDate" type="date"></label>
+              <label>Nº da pasta<input id="teacherFolderNumber"></label>
+              <label class="wide">Religião<input id="teacherReligion"></label>
+              <label>Naturalidade (Cidade/Estado)<input id="teacherBirthplace"></label>
+              <label>Nacionalidade (País)<input id="teacherNationality"></label>
+              <label>Nº do passaporte<input id="teacherPassport"></label>
+              <label>Registro de nascimento — Número<input id="teacherBirthRecordNumber"></label>
+              <label>Livro<input id="teacherBirthRecordBook"></label>
+              <label>Folha<input id="teacherBirthRecordPage"></label>
+              <label>Cartório<input id="teacherBirthRecordOffice"></label>
+              <label>Data do registro<input id="teacherBirthRecordDate" type="date"></label>
+              <label>Identificador para catraca<input id="teacherTurnstileId"></label>
+              <label>Impressão digital
+                <select id="teacherFingerprint"><option value="no">Não cadastrada</option><option value="yes">Cadastrada</option></select>
+              </label>
+            </div>
+
+            <div class="teacher-web-access">
+              <div>
+                <p>MÓDULO WEB</p>
+                <h4>Acesso do professor</h4>
+              </div>
+              <div class="teacher-web-grid">
+                <label>Login<input id="teacherWebLogin"></label>
+                <label>Senha<input id="teacherPasswordStatus" readonly value="Não cadastrada"></label>
+              </div>
+              <div class="teacher-access-actions">
+                <button class="secondary" id="teacherCreateAccessBtn" type="button">Criar acesso</button>
+                <button class="secondary" id="teacherResetAccessBtn" type="button" hidden>Alterar senha</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="teacher-form-actions">
+            <button class="secondary" id="teacherCancelBtn" type="button">Cancelar</button>
+            <button class="primary" type="submit">Gravar</button>
+          </div>
+          <div id="teacherMessage" class="access-message"></div>
+        </form>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="enrollments" class="view">
