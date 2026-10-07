@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const titles={dashboard:["Geral / Início","Início"],agenda:["Gestão / Agenda","Agenda institucional"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
+const titles={dashboard:["Geral / Início","Início"],agenda:["Gestão / Agenda","Agenda institucional"],access:["Administração / Segurança","Gestão de acessos"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
 
 let students=[];
 const guardians=[];
@@ -201,6 +201,136 @@ $("#downloadAgendaIcs")?.addEventListener("click",()=>{
 $("#clearAgendaForm")?.addEventListener("click",resetAgendaForm);
 resetAgendaForm();
 renderAgendaHistory();
+
+
+
+const accessRoleLabels={administrator:"Administrador",secretary:"Secretaria",academic:"Acadêmico",teacher:"Professor",finance:"Financeiro",communication:"Comunicação",viewer:"Consulta"};
+const accessTypeLabels={student:"Aluno",guardian:"Responsável",teacher:"Professor",staff:"Funcionário"};
+
+function safeText(value=""){
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+function accessMessage(text="",kind=""){
+  const el=$("#accessAuthMessage"); if(!el)return;
+  el.textContent=text; el.className="access-message "+kind;
+}
+function showTemporaryPassword(login,password){
+  $("#temporaryLogin").value=login||"";
+  $("#temporaryPassword").value=password||"";
+  $("#temporaryPasswordModal").classList.add("open");
+}
+function accessDate(value){
+  if(!value)return "Nunca";
+  const d=new Date(value);
+  return Number.isNaN(d.getTime())?"—":d.toLocaleString("pt-BR");
+}
+function renderAccessRows(accounts){
+  const el=$("#accessRows"); if(!el)return;
+  if(!accounts.length){
+    el.innerHTML='<tr><td colspan="7">Nenhuma conta cadastrada.</td></tr>';
+    return;
+  }
+  el.innerHTML=accounts.map(a=>`<tr>
+    <td>${safeText(a.display_name||"—")}</td>
+    <td>${safeText(accessTypeLabels[a.person_type]||a.person_type||"—")}</td>
+    <td><code>${safeText(a.login||"—")}</code></td>
+    <td>${safeText(a.email||"—")}</td>
+    <td><span class="status ${a.active?"active":"pending"}">${a.active?"Ativo":"Inativo"}</span></td>
+    <td>${safeText(accessDate(a.last_password_reset_at))}</td>
+    <td><button class="secondary access-reset-btn" data-account-id="${safeText(a.id)}" ${!a.auth_user_id||!a.active?"disabled":""}>Redefinir senha</button></td>
+  </tr>`).join("");
+  $(".access-reset-btn").forEach(btn=>btn.onclick=async()=>{
+    const id=btn.dataset.accountId;
+    const row=accounts.find(a=>a.id===id);
+    if(!row)return;
+    if(!confirm("Redefinir a senha de "+(row.display_name||row.login)+"?"))return;
+    btn.disabled=true;
+    try{
+      const result=await DaegonAuth.resetPassword(id);
+      showTemporaryPassword(result.login,result.temporary_password);
+      accessMessage("Senha redefinida com sucesso.","ok");
+      await loadAccessAccounts($("#accessSearchInput").value);
+    }catch(e){
+      accessMessage("Não foi possível redefinir a senha: "+(e.message||"erro"),"error");
+    }finally{btn.disabled=false}
+  });
+}
+async function loadAccessAccounts(query=""){
+  if(!DaegonAuth.state.profile)return;
+  const profile=DaegonAuth.state.profile;
+  if(!["administrator","secretary"].includes(profile.role))return;
+  const el=$("#accessRows");
+  if(el)el.innerHTML='<tr><td colspan="7">Carregando...</td></tr>';
+  try{
+    const accounts=await DaegonAuth.accessSearch(query);
+    renderAccessRows(accounts);
+  }catch(e){
+    if(el)el.innerHTML='<tr><td colspan="7">Não foi possível carregar as contas.</td></tr>';
+    accessMessage("Erro ao consultar acessos: "+(e.message||"erro"),"error");
+  }
+}
+function renderAccessSession(){
+  const {session,profile}=DaegonAuth.state;
+  const signedOut=$("#accessSignedOut"),signedIn=$("#accessSignedIn"),locked=$("#accessLocked"),manager=$("#accessManager");
+  if(session){
+    signedOut.hidden=true; signedIn.hidden=false;
+    $("#accessCurrentName").textContent=profile?.full_name||session.user.email||"Conta autenticada";
+    $("#accessCurrentRole").textContent=profile?accessRoleLabels[profile.role]||profile.role:"Sem perfil administrativo";
+    $("#userName").textContent=profile?.full_name||session.user.email||"Conta";
+    $("#userRole").textContent=profile?accessRoleLabels[profile.role]||profile.role:"Sem perfil";
+    $("#userAvatar").textContent=(profile?.full_name||session.user.email||"DE").split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();
+    const allowed=!!profile&&profile.active&&["administrator","secretary"].includes(profile.role);
+    locked.hidden=allowed; manager.hidden=!allowed;
+    if(allowed)loadAccessAccounts($("#accessSearchInput")?.value||"");
+    else accessMessage("Esta conta não possui permissão para administrar acessos.","error");
+  }else{
+    signedOut.hidden=false; signedIn.hidden=true; locked.hidden=false; manager.hidden=true;
+    $("#userName").textContent="Entrar"; $("#userRole").textContent="Não autenticado"; $("#userAvatar").textContent="DE";
+  }
+}
+$("#userPill")?.addEventListener("click",()=>switchView("access"));
+$("#userPill")?.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();switchView("access")}});
+$("#accessLoginForm")?.addEventListener("submit",async e=>{
+  e.preventDefault(); accessMessage("Entrando...");
+  try{
+    await DaegonAuth.signIn($("#accessLoginEmail").value.trim(),$("#accessLoginPassword").value);
+    $("#accessLoginPassword").value="";
+    accessMessage("Acesso realizado.","ok");
+  }catch(err){accessMessage("Não foi possível entrar: "+(err.message||"erro"),"error")}
+});
+$("#bootstrapForm")?.addEventListener("submit",async e=>{
+  e.preventDefault(); accessMessage("Ativando primeiro administrador...");
+  try{
+    const result=await DaegonAuth.bootstrap($("#bootstrapEmail").value.trim(),$("#bootstrapFullName").value.trim(),$("#bootstrapCode").value);
+    showTemporaryPassword(result.login,result.temporary_password);
+    await DaegonAuth.signIn(result.login,result.temporary_password);
+    $("#bootstrapCode").value="";
+    accessMessage("Administrador ativado. Troque a senha temporária em “Alterar minha senha”.","ok");
+  }catch(err){accessMessage("Não foi possível ativar: "+(err.message||"erro"),"error")}
+});
+$("#accessSignOutBtn")?.addEventListener("click",async()=>{
+  try{await DaegonAuth.signOut();accessMessage("Sessão encerrada.","ok")}catch(e){accessMessage("Erro ao sair.","error")}
+});
+$("#myPasswordForm")?.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const p=$("#myNewPassword").value,c=$("#myNewPasswordConfirm").value;
+  if(p!==c){accessMessage("As senhas não coincidem.","error");return}
+  if(p.length<8){accessMessage("Use pelo menos 8 caracteres.","error");return}
+  try{
+    const {error}=await DaegonAuth.sb.auth.updateUser({password:p});
+    if(error)throw error;
+    e.currentTarget.reset();
+    accessMessage("Sua senha foi alterada.","ok");
+  }catch(err){accessMessage("Não foi possível alterar sua senha: "+(err.message||"erro"),"error")}
+});
+$("#accessSearchBtn")?.addEventListener("click",()=>loadAccessAccounts($("#accessSearchInput").value));
+$("#accessSearchInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")loadAccessAccounts(e.currentTarget.value)});
+$("#closeTemporaryPassword")?.addEventListener("click",()=>$("#temporaryPasswordModal").classList.remove("open"));
+$("#copyTemporaryPassword")?.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText($("#temporaryPassword").value);toast("Senha temporária copiada")}catch{toast("Não foi possível copiar")}
+});
+window.addEventListener("daegon-auth",renderAccessSession);
+DaegonAuth.refresh().then(renderAccessSession).catch(()=>accessMessage("Não foi possível iniciar a autenticação.","error"));
 
 
 function globalMatches(q){
