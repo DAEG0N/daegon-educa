@@ -299,3 +299,33 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
   body.doc-print-mode .doc-results-table{overflow:visible}
   body.doc-print-mode .doc-results-table table{min-width:0;font-size:8pt}
 }
+
+
+/* Passo 7 — Foto de aluno e professor */
+.teacher-head-actions{display:flex;align-items:center;gap:10px}
+.profile-photo-button{border:0;background:transparent;display:grid;justify-items:center;gap:4px;padding:0;cursor:pointer}
+.profile-photo-button:disabled{cursor:not-allowed;opacity:.55}
+.profile-photo-button small{font-size:7px;color:var(--green);font-weight:600}
+.profile-photo-frame,.student-photo-cell{width:48px;height:48px;border-radius:6px;border:1px solid var(--line);background:var(--bg);overflow:hidden;display:grid;place-items:center}
+.profile-photo-frame img,.student-photo-thumb{width:100%;height:100%;object-fit:cover}
+.profile-photo-frame>span,.student-photo-fallback{font-size:9px;color:var(--muted);font-weight:700}
+.student-photo-cell{width:36px;height:36px;border-radius:5px}
+.student-photo-fallback{width:100%;height:100%;display:grid;place-items:center}
+.profile-photo-modal-box{width:min(560px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:20px;position:relative}
+.profile-photo-modal-box>p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}
+.profile-photo-modal-box h2{margin:4px 0 14px;font-size:19px}
+.profile-photo-preview{width:190px;height:190px;border:1px solid var(--line);border-radius:8px;background:var(--bg);overflow:hidden;display:grid;place-items:center;margin:0 auto 14px}
+.profile-photo-preview img{width:100%;height:100%;object-fit:cover}
+.profile-photo-preview>div{font-size:10px;color:var(--muted)}
+.profile-photo-file{display:grid;gap:6px;font-size:9px}
+.profile-photo-file input{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px;width:100%}
+.profile-photo-help{display:block;color:var(--muted);font-size:8px;margin-top:6px}
+.profile-photo-meta{min-height:18px;font-size:8px;color:var(--muted);margin-top:8px}
+.profile-photo-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+@media(max-width:600px){
+  .teacher-editor-head{gap:10px}
+  .teacher-head-actions{align-items:flex-start}
+  .profile-photo-preview{width:160px;height:160px}
+  .profile-photo-actions{flex-direction:column-reverse}
+  .profile-photo-actions button{width:100%}
+}
