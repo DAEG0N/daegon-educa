@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const titles={dashboard:["Geral / Início","Início"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
+const titles={dashboard:["Geral / Início","Início"],agenda:["Gestão / Agenda","Agenda institucional"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
 
 let students=[
 {name:"Gabriel Santos",reg:"2026-0712",class:"7º A",status:"active",guardian:"Juliana Santos",phone:"(79) 99111-2200"},
@@ -87,6 +87,141 @@ $("#newStudentBtn").onclick=()=>openModal(studentModal); $("#quickBtn").onclick=
 $$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.closest(".modal"))); $$(".modal").forEach(m=>m.onclick=e=>{if(e.target===m)closeModal(m)});
 $("#studentForm").onsubmit=e=>{e.preventDefault();const f=new FormData(e.currentTarget);students.unshift({name:f.get("name"),reg:"2026-"+String(Math.floor(Math.random()*9000+1000)),class:f.get("class"),status:f.get("status"),guardian:f.get("guardian"),phone:f.get("phone")||"—"});renderStudents();e.currentTarget.reset();closeModal(studentModal);toast("Aluno cadastrado")};
 $("#enrollmentForm").onsubmit=e=>{e.preventDefault();e.currentTarget.reset();closeModal(enrollmentModal);toast("Matrícula iniciada")};
+
+
+const AGENDA_STORAGE_KEY="daegonEducaAgendaV1";
+const agendaForm=$("#agendaForm");
+
+function agendaToday(){
+  const d=new Date();
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+function agendaStamp(date,time){
+  return (date+"T"+time+":00").replace(/[-:]/g,"");
+}
+function agendaEscapeIcs(value=""){
+  return String(value).replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
+}
+function agendaGuests(){
+  return $("#agendaGuests").value.split(/[;,\n]/).map(x=>x.trim()).filter(x=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x));
+}
+function agendaData(){
+  return {
+    title:$("#agendaTitle").value.trim(),
+    date:$("#agendaDate").value,
+    start:$("#agendaStart").value,
+    end:$("#agendaEnd").value,
+    calendar:$("#agendaCalendar").value.trim()||"Agenda institucional",
+    guests:agendaGuests(),
+    reminder:+$("#agendaReminder").value,
+    notifyDisplay:$("#agendaNotifyDisplay").checked,
+    notifyEmail:$("#agendaNotifyEmail").checked,
+    location:$("#agendaLocation").value.trim(),
+    description:$("#agendaDescription").value.trim()
+  };
+}
+function validateAgendaEvent(e){
+  if(!e.title||!e.date||!e.start||!e.end){toast("Preencha nome, data e horários");return false}
+  if(e.end<=e.start){toast("O término precisa ser depois do início");return false}
+  return true;
+}
+function googleAgendaUrl(e){
+  const url=new URL("https://calendar.google.com/calendar/r/eventedit");
+  url.searchParams.set("action","TEMPLATE");
+  url.searchParams.set("text",e.title);
+  url.searchParams.set("dates",agendaStamp(e.date,e.start)+"/"+agendaStamp(e.date,e.end));
+  url.searchParams.set("stz","America/Maceio");
+  url.searchParams.set("etz","America/Maceio");
+  const reminderLabel=e.reminder>=1440?(e.reminder/1440)+" dia(s)":e.reminder>=60?(e.reminder/60)+" hora(s)":e.reminder+" min";
+  const channels=[e.notifyDisplay?"área de trabalho":"",e.notifyEmail?"e-mail":""].filter(Boolean).join(" + ");
+  const extras=[
+    e.description,
+    e.calendar?"Agenda: "+e.calendar:"",
+    channels?"Lembrete solicitado: "+reminderLabel+" antes · "+channels:"",
+    e.guests.length?"Convidados: "+e.guests.join(", "):""
+  ].filter(Boolean).join("\n\n");
+  if(extras)url.searchParams.set("details",extras);
+  if(e.location)url.searchParams.set("location",e.location);
+  e.guests.forEach(email=>url.searchParams.append("add",email));
+  return url.toString();
+}
+function agendaIcs(e){
+  const mins=Math.max(1,e.reminder||30);
+  const uid="daegon-"+Date.now()+"-"+Math.random().toString(36).slice(2)+"@daegon-educa";
+  const now=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  const lines=[
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Daegon Educa//Agenda//PT-BR",
+    "CALSCALE:GREGORIAN","METHOD:REQUEST","BEGIN:VEVENT",
+    "UID:"+uid,"DTSTAMP:"+now,
+    "DTSTART;TZID=America/Maceio:"+agendaStamp(e.date,e.start),
+    "DTEND;TZID=America/Maceio:"+agendaStamp(e.date,e.end),
+    "SUMMARY:"+agendaEscapeIcs(e.title)
+  ];
+  if(e.description)lines.push("DESCRIPTION:"+agendaEscapeIcs(e.description));
+  if(e.location)lines.push("LOCATION:"+agendaEscapeIcs(e.location));
+  e.guests.forEach(email=>lines.push("ATTENDEE;RSVP=TRUE:mailto:"+agendaEscapeIcs(email)));
+  if(e.notifyDisplay){
+    lines.push("BEGIN:VALARM","TRIGGER:-PT"+mins+"M","ACTION:DISPLAY","DESCRIPTION:"+agendaEscapeIcs("Lembrete: "+e.title),"END:VALARM");
+  }
+  if(e.notifyEmail){
+    lines.push("BEGIN:VALARM","TRIGGER:-PT"+mins+"M","ACTION:EMAIL","DESCRIPTION:"+agendaEscapeIcs(e.title),"SUMMARY:"+agendaEscapeIcs("Lembrete: "+e.title),"END:VALARM");
+  }
+  lines.push("END:VEVENT","END:VCALENDAR");
+  return lines.join("\r\n");
+}
+function agendaHistoryItems(){
+  try{return JSON.parse(localStorage.getItem(AGENDA_STORAGE_KEY)||"[]")}catch{return []}
+}
+function saveAgendaHistory(e){
+  const items=agendaHistoryItems();
+  items.unshift({...e,createdAt:new Date().toISOString()});
+  localStorage.setItem(AGENDA_STORAGE_KEY,JSON.stringify(items.slice(0,8)));
+  renderAgendaHistory();
+}
+function renderAgendaHistory(){
+  const el=$("#agendaHistory"); if(!el)return;
+  const items=agendaHistoryItems();
+  el.innerHTML=items.length?items.map((e,i)=>`
+    <div class="agenda-history-item">
+      <div class="agenda-datebox"><b>${e.date.slice(8,10)}</b><span>${new Date(e.date+"T12:00:00").toLocaleDateString("pt-BR",{month:"short"}).replace(".","")}</span></div>
+      <div><b>${e.title}</b><small>${e.start}–${e.end} · ${e.calendar||"Agenda institucional"}</small></div>
+      <button type="button" class="secondary agenda-reopen" data-agenda-index="${i}">Abrir</button>
+    </div>`).join(""):'<div class="agenda-empty"><b>Nenhum agendamento ainda</b><small>Os eventos criados pelo Daegon Educa aparecerão aqui.</small></div>';
+  $(".agenda-reopen").forEach(b=>b.onclick=()=>window.open(googleAgendaUrl(items[+b.dataset.agendaIndex]),"_blank","noopener"));
+}
+function resetAgendaForm(){
+  agendaForm.reset();
+  $("#agendaDate").value=agendaToday();
+  $("#agendaStart").value="09:00";
+  $("#agendaEnd").value="10:00";
+  $("#agendaCalendar").value="Agenda institucional";
+  $("#agendaReminder").value="30";
+  $("#agendaNotifyDisplay").checked=true;
+  $("#agendaNotifyEmail").checked=true;
+}
+agendaForm?.addEventListener("submit",ev=>{
+  ev.preventDefault();
+  const data=agendaData();
+  if(!validateAgendaEvent(data))return;
+  saveAgendaHistory(data);
+  window.open(googleAgendaUrl(data),"_blank","noopener");
+  toast("Evento preparado no Google Agenda");
+});
+$("#downloadAgendaIcs")?.addEventListener("click",()=>{
+  const data=agendaData();
+  if(!validateAgendaEvent(data))return;
+  const blob=new Blob([agendaIcs(data)],{type:"text/calendar;charset=utf-8"});
+  const href=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=href;a.download=(data.title||"agendamento").replace(/[^a-z0-9à-ú_-]+/gi,"-")+".ics";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(href);
+  saveAgendaHistory(data);
+  toast("Convite .ics gerado");
+});
+$("#clearAgendaForm")?.addEventListener("click",resetAgendaForm);
+resetAgendaForm();
+renderAgendaHistory();
+
 
 function globalMatches(q){
  q=q.toLowerCase().trim(); if(!q)return [];
