@@ -662,6 +662,82 @@
     return data;
   }
 
+
+  async function listBroadcastLists() {
+    if (!state.profile) return [];
+    const { data: lists, error } = await sb.from("broadcast_lists")
+      .select("id,name,active,created_at,updated_at")
+      .eq("institution_id", state.profile.institution_id)
+      .order("name");
+    if (error) throw error;
+    if (!lists?.length) return [];
+
+    const ids=lists.map(x=>x.id);
+    const { data: contacts, error: contactError } = await sb.from("broadcast_list_contacts")
+      .select("list_id")
+      .in("list_id",ids);
+    if (contactError) throw contactError;
+
+    const counts=new Map();
+    (contacts||[]).forEach(x=>counts.set(x.list_id,(counts.get(x.list_id)||0)+1));
+    return lists.map(x=>({...x,contact_count:counts.get(x.id)||0}));
+  }
+
+  async function createBroadcastList(name) {
+    if (!state.profile) throw new Error("authentication_required");
+    const { data, error } = await sb.from("broadcast_lists").insert({
+      institution_id:state.profile.institution_id,
+      name:name.trim(),
+      active:true,
+      created_by:state.profile.id
+    }).select("id,name,active,created_at,updated_at").single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateBroadcastList(id, values) {
+    const payload={};
+    if (values.name !== undefined) payload.name=String(values.name).trim();
+    if (values.active !== undefined) payload.active=!!values.active;
+    const { data, error } = await sb.from("broadcast_lists")
+      .update(payload)
+      .eq("id",id)
+      .select("id,name,active,created_at,updated_at")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function listBroadcastContacts(listId) {
+    const { data, error } = await sb.from("broadcast_list_contacts")
+      .select("id,contact_name,phone,normalized_phone,source_row,created_at")
+      .eq("list_id",listId)
+      .order("contact_name");
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function listBroadcastImports(listId) {
+    const { data, error } = await sb.from("broadcast_list_imports")
+      .select("id,file_name,source_rows,imported_rows,skipped_rows,created_at")
+      .eq("list_id",listId)
+      .order("created_at",{ascending:false})
+      .limit(10);
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function replaceBroadcastContacts(listId, contacts, fileName, sourceRows) {
+    const { data, error } = await sb.rpc("replace_broadcast_list_contacts",{
+      p_list_id:listId,
+      p_contacts:contacts,
+      p_file_name:fileName||null,
+      p_source_rows:sourceRows
+    });
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] || {imported_rows:0,skipped_rows:sourceRows||0} : data;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
   window.DaegonAuth = {
     sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword,
@@ -677,6 +753,8 @@
     listAcademicCourses, listDocumentTypes, listDocumentPendencies,
     prepareDocumentReminder, markDocumentReminderSent,
     listStudentsForPhotos, signedProfilePhotoUrl, uploadProfilePhoto, removeProfilePhoto,
-    getYearStartRoutine, createYearStartRoutine, updateYearRoutineItem
+    getYearStartRoutine, createYearStartRoutine, updateYearRoutineItem,
+    listBroadcastLists, createBroadcastList, updateBroadcastList,
+    listBroadcastContacts, listBroadcastImports, replaceBroadcastContacts
   };
 })();
