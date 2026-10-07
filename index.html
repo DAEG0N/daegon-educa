@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=9">
+<link rel="stylesheet" href="./styles.css?v=10">
 </head>
 <body>
 <header class="global-header">
@@ -591,8 +591,104 @@
 </section>
 
 <section id="documents" class="view">
-  <div class="page-toolbar"><div><p>SECRETARIA DIGITAL</p><h2>Documentos</h2></div><button class="primary">+ Emitir documento</button></div>
-  <div class="module-grid" id="documentGrid"></div>
+  <div class="page-toolbar">
+    <div><p>SECRETARIA / MATRÍCULA / DOCUMENTAÇÃO</p><h2>Pendências de documentos</h2></div>
+    <div><button class="secondary" id="docPrintBtn" type="button">Imprimir relação</button></div>
+  </div>
+
+  <div id="docLocked" class="card">
+    <div class="agenda-empty"><b>Entre com uma conta autorizada</b><small>Administrador, Secretaria ou Acadêmico podem consultar pendências de matrícula.</small></div>
+  </div>
+
+  <div id="docManager" hidden>
+    <div class="card doc-report-filters">
+      <div class="card-head"><div><p>RELAÇÃO DE ALUNOS POR PROCEDIMENTO DE MATRÍCULA</p><h3>Filtros do relatório</h3></div></div>
+
+      <div class="doc-filter-grid">
+        <label>Período
+          <select id="docPeriod"><option value="">Todos</option></select>
+        </label>
+        <label>Curso
+          <select id="docCourse"><option value="">Todos</option></select>
+        </label>
+        <label>Série
+          <select id="docGrade"><option value="">Todas</option></select>
+        </label>
+        <label>Turma
+          <select id="docClass"><option value="">Todas</option></select>
+        </label>
+        <label>Procedimento / documento
+          <select id="docType"><option value="">Todos</option></select>
+        </label>
+        <label>Situação do aluno na turma
+          <select id="docEnrollmentStatus">
+            <option value="">Todas</option>
+            <option value="active">Cursando</option>
+            <option value="completed">Aprovado</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="doc-filter-groups">
+        <fieldset>
+          <legend>Situação dos procedimentos/documentos</legend>
+          <label><input type="checkbox" class="doc-status-filter" value="received"> Entregue</label>
+          <label><input type="checkbox" class="doc-status-filter" value="pending" checked> Aguardando</label>
+          <label><input type="checkbox" class="doc-status-filter" value="waived"> Dispensado</label>
+          <label><input type="checkbox" class="doc-status-filter" value="undefined"> Indefinido</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Opções de exibição</legend>
+          <label><input type="radio" name="docDisplay" value="class"> Agrupando por turma</label>
+          <label><input type="radio" name="docDisplay" value="student"> Agrupando por aluno</label>
+          <label><input type="radio" name="docDisplay" value="simple" checked> Listagem simples</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Cobrança</legend>
+          <label><input type="checkbox" id="docOverdueOnly" checked> Somente vencidos</label>
+          <small>O procedimento prevê cobrança após 30 dias e acompanhamento mensal.</small>
+        </fieldset>
+      </div>
+
+      <div class="doc-filter-actions">
+        <button class="secondary" id="docClearFilters" type="button">Limpar filtros</button>
+        <button class="primary" id="docApplyFilters" type="button">Aplicar filtros</button>
+      </div>
+    </div>
+
+    <div class="card doc-results-card">
+      <div class="card-head">
+        <div><p>PENDÊNCIAS</p><h3 id="docResultTitle">Alunos aguardando documentação</h3></div>
+        <span id="docResultCount" class="status">0 registros</span>
+      </div>
+      <div class="table-card doc-results-table">
+        <table>
+          <thead><tr><th>Aluno</th><th>Matrícula</th><th>Período</th><th>Curso</th><th>Série</th><th>Turma</th><th>Documento</th><th>Situação</th><th>Prazo</th><th>Responsável</th><th>Última cobrança</th><th></th></tr></thead>
+          <tbody id="docRows"><tr><td colspan="12">Nenhuma pendência cadastrada.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="docReminderModal">
+    <div class="doc-reminder-box">
+      <button type="button" class="close" id="docReminderClose">×</button>
+      <p>COBRANÇA DE DOCUMENTO</p>
+      <h2 id="docReminderTitle">Cobrar responsável</h2>
+      <div class="doc-reminder-meta" id="docReminderMeta"></div>
+      <label>Mensagem
+        <textarea id="docReminderText" rows="9"></textarea>
+      </label>
+      <div class="doc-reminder-actions">
+        <button class="secondary" id="docCopyReminder" type="button">Copiar mensagem</button>
+        <button class="secondary" id="docMarkSent" type="button" disabled>Registrar como enviada</button>
+        <button class="primary" id="docOpenWhatsapp" type="button">Abrir WhatsApp</button>
+      </div>
+      <div id="docReminderMessage" class="access-message"></div>
+    </div>
+  </div>
 </section>
 
 <section id="classes" class="view">
@@ -665,4 +761,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>\n<script src="supabase-client.js"></script>\n<script src="app.js"></script>
 <script src="teacher.js"></script>
 <script src="integration.js"></script>
+<script src="documents.js"></script>
 </body></html>
