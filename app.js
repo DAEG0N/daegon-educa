@@ -28,9 +28,6 @@ $("#guardianRows").innerHTML='<tr><td colspan="6">Nenhum responsável cadastrado
 const enrollLanes=[];
 $("#enrollmentPipeline").innerHTML='<div class="agenda-empty"><b>Nenhuma matrícula cadastrada</b><small>As matrículas reais aparecerão aqui.</small></div>';
 
-const docs=[["DEC","Declaração de matrícula","Emissão imediata"],["HIS","Histórico escolar","Com notas e carga horária"],["BOL","Boletim escolar","Por período ou anual"],["ATE","Atestado de frequência","Com percentual de presença"],["TRA","Transferência","Documentação de saída"],["CER","Certificado","Conclusão de etapa"]];
-$("#documentGrid").innerHTML=docs.map(d=>`<article class="module-card"><span>${d[0]}</span><h3>${d[1]}</h3><p>${d[2]}</p><button class="secondary">Emitir documento</button></article>`).join("");
-
 const classes=[];
 $("#classGrid").innerHTML='<div class="agenda-empty"><b>Nenhuma turma cadastrada</b><small>As turmas reais aparecerão aqui.</small></div>';
 
