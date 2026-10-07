@@ -201,3 +201,36 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
 .holiday-year-label{display:grid;gap:4px;font-size:8px;color:var(--muted)}
 .holiday-year-label select{min-width:100px}
 .holiday-active{display:flex!important;align-items:center;gap:6px}
+
+
+/* Passo 4 — Cadastro de professores */
+.teacher-layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px}
+.teacher-list-card{height:max-content;padding:12px}
+.teacher-search input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:10px;outline:0}
+.teacher-list{display:grid;margin-top:10px}
+.teacher-list-item{border:0;border-top:1px solid var(--line);background:transparent;padding:10px 4px;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.teacher-list-item:first-child{border-top:0}.teacher-list-item:hover{background:var(--bg)}
+.teacher-list-item span{display:grid;gap:3px}.teacher-list-item b{font-size:10px}.teacher-list-item small{font-size:8px;color:var(--muted)}.teacher-list-item em{font-style:normal}
+.teacher-editor{min-height:520px}.teacher-editor-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.teacher-editor-head p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}.teacher-editor-head h3{font-size:17px;margin:4px 0 0}
+.teacher-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;margin-bottom:14px}
+.teacher-tabs button{border:0;background:transparent;padding:9px 10px;font-size:9px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent}
+.teacher-tabs button.active{color:var(--ink);border-color:var(--green)}
+.teacher-tab-panel{display:none}.teacher-tab-panel.active{display:block}
+.teacher-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.teacher-grid .wide{grid-column:1/-1}.teacher-grid label{display:grid;gap:5px;font-size:9px}
+.teacher-grid input,.teacher-grid select,.teacher-grid textarea,.allocation-toolbar input,.allocation-toolbar select,.teacher-web-grid input{
+  width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px;outline:0
+}
+.teacher-grid textarea{resize:vertical}.teacher-grid input:focus,.teacher-grid select:focus,.teacher-grid textarea:focus,.allocation-toolbar input:focus,.allocation-toolbar select:focus,.teacher-web-grid input:focus{border-color:#91ab9e;box-shadow:0 0 0 3px rgba(47,125,88,.08)}
+.teacher-form-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.teacher-dual-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}.teacher-dual-list>div{display:grid;gap:8px}
+.teacher-dual-list h4{font-size:10px;margin:0}.teacher-dual-list select{width:100%;min-height:240px;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--panel)}
+.allocation-toolbar{display:grid;grid-template-columns:1fr 1.4fr 1.4fr 90px auto;gap:8px;align-items:end;margin-bottom:10px}
+.allocation-toolbar label{display:grid;gap:5px;font-size:9px}
+.teacher-web-access{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.teacher-web-access>div:first-child p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}.teacher-web-access h4{margin:3px 0 10px;font-size:13px}
+.teacher-web-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.teacher-web-grid label{display:grid;gap:5px;font-size:9px}
+.teacher-access-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:10px}
+@media(max-width:1000px){.teacher-layout{grid-template-columns:1fr}.teacher-list-card{max-height:300px;overflow:auto}.teacher-grid{grid-template-columns:1fr 1fr}.allocation-toolbar{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.teacher-grid,.teacher-dual-list,.teacher-web-grid,.allocation-toolbar{grid-template-columns:1fr}.teacher-grid .wide{grid-column:auto}.teacher-form-actions,.teacher-access-actions{flex-direction:column-reverse}.teacher-form-actions button,.teacher-access-actions button{width:100%}}
