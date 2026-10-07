@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=6">
+<link rel="stylesheet" href="./styles.css?v=7">
 </head>
 <body>
 <header class="global-header">
@@ -26,7 +26,9 @@
 
   <nav class="top-nav" aria-label="Navegação principal">
     <button class="nav active" data-view="dashboard">Início</button>
-    <button class="nav" data-view="agenda">Agenda</button>\n    <button class="nav" data-view="access">Acessos</button>
+    <button class="nav" data-view="agenda">Agenda</button>
+    <button class="nav" data-view="access">Acessos</button>
+    <button class="nav" data-view="holidays">Feriados</button>
     <button class="nav" data-view="students">Alunos</button>
     <button class="nav" data-view="guardians">Responsáveis</button>
     <button class="nav" data-view="enrollments">Matrículas</button>
@@ -187,6 +189,85 @@
     </article>
   </div>
   <div class="modal" id="temporaryPasswordModal"><div class="temporary-password-box"><button type="button" class="close" id="closeTemporaryPassword">×</button><p>SENHA TEMPORÁRIA</p><h2>Redefinição concluída</h2><p class="temporary-help">A senha abaixo é exibida somente agora. Ela não é armazenada em texto puro no Daegon Educa.</p><label>Login<input id="temporaryLogin" readonly></label><label>Senha temporária<div class="copy-field"><input id="temporaryPassword" readonly><button class="secondary" id="copyTemporaryPassword" type="button">Copiar</button></div></label></div></div>
+</section>
+
+
+<section id="holidays" class="view">
+  <div class="page-toolbar">
+    <div><p>CONFIGURAÇÃO / CALENDÁRIO</p><h2>Feriados e datas imprensadas</h2></div>
+  </div>
+
+  <div id="holidayLocked" class="card">
+    <div class="agenda-empty">
+      <b>Entre com uma conta autorizada</b>
+      <small>Administrador, Secretaria ou Acadêmico podem cadastrar e alterar estas datas.</small>
+    </div>
+  </div>
+
+  <div id="holidayManager" class="holiday-layout" hidden>
+    <form id="holidayForm" class="card holiday-form">
+      <div class="card-head">
+        <div><p id="holidayFormEyebrow">NOVO CADASTRO</p><h3 id="holidayFormTitle">Cadastrar data</h3></div>
+      </div>
+
+      <input type="hidden" id="holidayId">
+
+      <div class="holiday-grid">
+        <label>Tipo
+          <select id="holidayKind" required>
+            <option value="holiday">Feriado</option>
+            <option value="bridge_day">Data imprensada</option>
+          </select>
+        </label>
+
+        <label>Data
+          <input id="holidayDate" type="date" required>
+        </label>
+
+        <label class="wide">Nome
+          <input id="holidayName" required>
+        </label>
+
+        <label class="wide">Unidade
+          <select id="holidayUnit">
+            <option value="">Todas as unidades</option>
+          </select>
+        </label>
+
+        <div class="holiday-check wide">
+          <label><input id="holidayActive" type="checkbox" checked> Cadastro ativo</label>
+          <label><input id="holidayFinance" type="checkbox" checked> Ativo para efeito financeiro</label>
+        </div>
+      </div>
+
+      <div class="finance-rule-note">
+        <b>Efeito financeiro</b>
+        <span>Quando esta opção estiver ativa, o dia deve ser considerado sem cobrança de juros e multa.</span>
+      </div>
+
+      <div class="holiday-actions">
+        <button class="secondary" id="holidayCancelEdit" type="button" hidden>Cancelar edição</button>
+        <button class="primary" type="submit">Salvar</button>
+      </div>
+      <div id="holidayMessage" class="access-message"></div>
+    </form>
+
+    <article class="card">
+      <div class="card-head">
+        <div><p>DATAS CADASTRADAS</p><h3>Calendário da instituição</h3></div>
+      </div>
+      <div class="table-card holiday-table">
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Nome</th><th>Tipo</th><th>Unidade</th><th>Financeiro</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="holidayRows">
+            <tr><td colspan="7">Nenhuma data cadastrada.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
 </section>
 
 <section id="search" class="view">
