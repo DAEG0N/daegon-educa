@@ -284,6 +284,111 @@
     return data;
   }
 
+
+  async function listLearningPlatformUsers() {
+    if (!state.profile) return [];
+    const { data, error } = await sb.from("learning_platform_users")
+      .select("id,person_type,external_id,full_name,birth_date,cpf,rg,phone,email,academic_email,active")
+      .eq("institution_id", state.profile.institution_id)
+      .eq("platform","az_lex")
+      .order("full_name");
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function getLearningPlatformUser(id) {
+    const { data, error } = await sb.from("learning_platform_users").select("*").eq("id",id).single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function saveLearningPlatformUser(input) {
+    if (!state.profile) throw new Error("authentication_required");
+    const payload={
+      institution_id:state.profile.institution_id,
+      platform:"az_lex",
+      person_type:input.person_type,
+      external_id:input.external_id||null,
+      full_name:input.full_name,
+      birth_date:input.birth_date||null,
+      cpf:input.cpf||null,
+      rg:input.rg||null,
+      phone:input.phone||null,
+      email:input.email||null,
+      academic_email:input.academic_email||null,
+      active:!!input.active
+    };
+    if(input.id){
+      const {data,error}=await sb.from("learning_platform_users").update(payload).eq("id",input.id).select("*").single();
+      if(error) throw error; return data;
+    }
+    const {data,error}=await sb.from("learning_platform_users").insert(payload).select("*").single();
+    if(error) throw error; return data;
+  }
+
+  async function listLearningProfiles(userId){
+    const {data,error}=await sb.from("learning_platform_user_profiles").select("id,profile_name").eq("platform_user_id",userId).order("profile_name");
+    if(error) throw error; return data||[];
+  }
+  async function addLearningProfile(userId,profileName){
+    if(!state.profile) throw new Error("authentication_required");
+    const {data,error}=await sb.from("learning_platform_user_profiles").insert({
+      institution_id:state.profile.institution_id,platform_user_id:userId,profile_name:profileName
+    }).select("id,profile_name").single();
+    if(error) throw error; return data;
+  }
+  async function removeLearningProfile(id){
+    const {error}=await sb.from("learning_platform_user_profiles").delete().eq("id",id);
+    if(error) throw error;
+  }
+
+  async function listLearningGuardians(){
+    if(!state.profile) return [];
+    const {data,error}=await sb.from("learning_platform_users")
+      .select("id,full_name,cpf,email,active")
+      .eq("institution_id",state.profile.institution_id)
+      .eq("platform","az_lex")
+      .eq("person_type","guardian")
+      .eq("active",true)
+      .order("full_name");
+    if(error) throw error; return data||[];
+  }
+  async function getLearningGuardianLink(studentUserId){
+    const {data,error}=await sb.from("learning_platform_user_guardians")
+      .select("id,guardian_platform_user_id,learning_platform_users!learning_platform_user_guardians_guardian_platform_user_id_fkey(id,full_name)")
+      .eq("student_platform_user_id",studentUserId).maybeSingle();
+    if(error) throw error; return data||null;
+  }
+  async function setLearningGuardian(studentUserId,guardianUserId){
+    if(!state.profile) throw new Error("authentication_required");
+    const {data:old,error:oldError}=await sb.from("learning_platform_user_guardians").select("id").eq("student_platform_user_id",studentUserId);
+    if(oldError) throw oldError;
+    if(old&&old.length){const {error}=await sb.from("learning_platform_user_guardians").delete().eq("student_platform_user_id",studentUserId); if(error) throw error;}
+    if(!guardianUserId) return null;
+    const {data,error}=await sb.from("learning_platform_user_guardians").insert({
+      institution_id:state.profile.institution_id,student_platform_user_id:studentUserId,guardian_platform_user_id:guardianUserId
+    }).select("id,guardian_platform_user_id").single();
+    if(error) throw error; return data;
+  }
+
+  async function listLearningClassLinks(userId){
+    const {data,error}=await sb.from("learning_platform_class_links")
+      .select("id,unit_id,class_id,profile_name,status,units(name),classes(name)")
+      .eq("platform_user_id",userId).order("created_at");
+    if(error) throw error; return data||[];
+  }
+  async function addLearningClassLink(userId,unitId,classId,profileName){
+    if(!state.profile) throw new Error("authentication_required");
+    const {data,error}=await sb.from("learning_platform_class_links").insert({
+      institution_id:state.profile.institution_id,platform_user_id:userId,unit_id:unitId,class_id:classId,profile_name:profileName,status:"active"
+    }).select("id").single();
+    if(error) throw error; return data;
+  }
+  async function removeLearningClassLink(id){
+    const {error}=await sb.from("learning_platform_class_links").delete().eq("id",id);
+    if(error) throw error;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
   window.DaegonAuth = {
     sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword,
@@ -291,6 +396,10 @@
     listTeachers, getTeacher, saveTeacher, listSubjects, listPeriods, listClasses,
     listTeacherSubjects, addTeacherSubject, removeTeacherSubject,
     listTeacherAssignments, addTeacherAssignment, removeTeacherAssignment,
-    getTeacherAccess, createTeacherAccess
+    getTeacherAccess, createTeacherAccess,
+    listLearningPlatformUsers, getLearningPlatformUser, saveLearningPlatformUser,
+    listLearningProfiles, addLearningProfile, removeLearningProfile,
+    listLearningGuardians, getLearningGuardianLink, setLearningGuardian,
+    listLearningClassLinks, addLearningClassLink, removeLearningClassLink
   };
 })();
