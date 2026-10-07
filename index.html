@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=8">
+<link rel="stylesheet" href="./styles.css?v=9">
 </head>
 <body>
 <header class="global-header">
@@ -42,6 +42,7 @@
     <button class="nav" data-view="finance">Financeiro</button>
     <button class="nav" data-view="communication">Comunicação</button>
     <button class="nav" data-view="portal">Portal & App</button>
+    <button class="nav" data-view="integrations">Integrações</button>
   </nav>
 </header>
 
@@ -275,6 +276,121 @@
             <tr><td colspan="5">Nenhum feriado cadastrado.</td></tr>
           </tbody>
         </table>
+      </div>
+    </article>
+  </div>
+</section>
+
+
+<section id="integrations" class="view">
+  <div class="page-toolbar">
+    <div><p>INTEGRAÇÕES / AZ & LEX</p><h2>Usuários da plataforma educacional</h2></div>
+    <button class="primary" id="newLexUserBtn" type="button">+ Novo usuário</button>
+  </div>
+
+  <div class="integration-shell">
+    <aside class="card integration-tree">
+      <div class="integration-tree-title"><b>AZ / Lex</b><small>Administrador</small></div>
+      <button class="integration-node active" type="button">Usuários</button>
+      <div class="integration-subnodes">
+        <span>Cursos</span><span>Turmas</span><span>Disciplinas</span><span>Produtos</span><span>Ocorrências</span><span>Escolas</span><span>Segmentos</span><span>Séries</span>
+      </div>
+      <div class="lex-search"><input id="lexSearch" placeholder="Nome, CPF ou e-mail"></div>
+      <div id="lexUserList" class="lex-user-list">
+        <div class="agenda-empty"><b>Nenhum usuário cadastrado</b><small>Os registros reais aparecerão aqui.</small></div>
+      </div>
+    </aside>
+
+    <article class="card lex-editor">
+      <div id="lexLocked" class="agenda-empty">
+        <b>Entre com uma conta autorizada</b>
+        <small>Administrador, Secretaria ou Acadêmico podem gerenciar usuários AZ/Lex.</small>
+      </div>
+
+      <div id="lexEditor" hidden>
+        <div class="teacher-editor-head">
+          <div><p id="lexEyebrow">NOVO USUÁRIO</p><h3 id="lexTitle">Usuário</h3></div>
+          <span id="lexStatusBadge" class="status active">Ativo</span>
+        </div>
+
+        <form id="lexForm">
+          <input type="hidden" id="lexUserId">
+          <div class="lex-section">
+            <h4>1. Identificação</h4>
+            <div class="lex-grid">
+              <label>Tipo de pessoa
+                <select id="lexPersonType" required>
+                  <option value="guardian">Responsável</option>
+                  <option value="student">Aluno</option>
+                  <option value="teacher">Professor</option>
+                </select>
+              </label>
+              <label>ID externo<input id="lexExternalId"></label>
+              <label class="wide">Nome completo<input id="lexFullName" required></label>
+              <label>Data de nascimento<input id="lexBirthDate" type="date"></label>
+              <label>CPF<input id="lexCpf"></label>
+              <label>RG<input id="lexRg"></label>
+              <label>Celular<input id="lexPhone"></label>
+              <label>E-mail<input id="lexEmail" type="email"></label>
+              <label>E-mail acadêmico<input id="lexAcademicEmail" type="email"></label>
+              <label>Status
+                <select id="lexActive"><option value="yes">Ativo</option><option value="no">Inativo</option></select>
+              </label>
+            </div>
+            <div id="lexAgeRule" class="finance-rule-note">
+              <b>Regra do cadastro</b>
+              <span>CPF e e-mail são obrigatórios para maiores de idade. Aluno menor de idade pode ser cadastrado sem esses dois campos.</span>
+            </div>
+          </div>
+
+          <div class="lex-section">
+            <h4>2. Perfis</h4>
+            <div id="lexNeedsSaveProfiles" class="agenda-empty"><b>Salve o usuário primeiro</b><small>Depois vincule um ou mais perfis.</small></div>
+            <div id="lexProfilesManager" hidden>
+              <div class="lex-inline">
+                <input id="lexProfileName" list="lexProfileOptions" placeholder="Perfil">
+                <datalist id="lexProfileOptions">
+                  <option value="Admin Escola"><option value="Admin Operação"><option value="Aluno"><option value="Assistente"><option value="Comercial"><option value="Coordenador"><option value="Corretor"><option value="Professor"><option value="Responsável">
+                </datalist>
+                <button class="secondary" id="lexAddProfileBtn" type="button">+ Vincular perfil</button>
+              </div>
+              <div id="lexProfiles" class="lex-chip-list"></div>
+            </div>
+          </div>
+
+          <div class="lex-section" id="lexGuardianSection">
+            <h4>3. Responsável</h4>
+            <div id="lexGuardianNotStudent" class="agenda-empty"><b>Disponível para aluno</b><small>O vínculo de responsável só é usado no perfil do aluno.</small></div>
+            <div id="lexGuardianManager" hidden>
+              <div class="finance-rule-note"><b>Atenção</b><span>O responsável precisa estar cadastrado antes do aluno.</span></div>
+              <div class="lex-inline">
+                <select id="lexGuardianSelect"><option value="">Selecione o responsável</option></select>
+                <button class="secondary" id="lexSetGuardianBtn" type="button">Vincular responsável</button>
+              </div>
+              <div id="lexCurrentGuardian" class="lex-current-link"></div>
+            </div>
+          </div>
+
+          <div class="lex-section" id="lexClassSection">
+            <h4>4. Turmas</h4>
+            <div id="lexClassNotApplicable" class="agenda-empty"><b>Somente aluno e professor</b><small>Responsáveis não recebem vínculo de turma neste procedimento.</small></div>
+            <div id="lexClassManager" hidden>
+              <div class="lex-class-toolbar">
+                <label>Unidade<select id="lexUnit"><option value="">Selecione</option></select></label>
+                <label>Turma<select id="lexClass"><option value="">Selecione</option></select></label>
+                <label>Perfil<input id="lexClassProfile" placeholder="Perfil"></label>
+                <button class="secondary" id="lexLinkClassBtn" type="button">Vincular turma</button>
+              </div>
+              <div class="table-card"><table><thead><tr><th>Unidade</th><th>Turma</th><th>Perfil</th><th>Status</th><th></th></tr></thead><tbody id="lexClassRows"><tr><td colspan="5">Nenhuma turma vinculada.</td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <div class="teacher-form-actions">
+            <button class="secondary" id="lexCancelBtn" type="button">Cancelar</button>
+            <button class="primary" type="submit">Salvar</button>
+          </div>
+          <div id="lexMessage" class="access-message"></div>
+        </form>
       </div>
     </article>
   </div>
@@ -548,4 +664,5 @@
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>\n<script src="supabase-client.js"></script>\n<script src="app.js"></script>
 <script src="teacher.js"></script>
+<script src="integration.js"></script>
 </body></html>
