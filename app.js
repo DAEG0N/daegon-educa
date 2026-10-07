@@ -17,9 +17,11 @@ $$("[data-jump]").forEach(b=>b.onclick=()=>switchView(b.dataset.jump));
 
 function statusLabel(s){return s==="active"?"Ativo":"Pendente"}
 function renderStudents(query=""){
-  const q=query.toLowerCase();
-  const rows=students.filter(s=>!q||[s.name,s.reg,s.class,s.guardian].join(" ").toLowerCase().includes(q));
-  $("#studentRows").innerHTML=rows.length?rows.map(s=>`<tr><td>${s.name}</td><td>${s.reg}</td><td>${s.class}</td><td><span class="status ${s.status}">${statusLabel(s.status)}</span></td><td>${s.guardian}</td><td>${s.phone}</td><td>•••</td></tr>`).join(""):'<tr><td colspan="7">Nenhum aluno cadastrado.</td></tr>';
+  if(window.DaegonPhotos?.renderStudentRows){
+    window.DaegonPhotos.renderStudentRows(query);
+    return;
+  }
+  $("#studentRows").innerHTML='<tr><td colspan="8">Nenhum aluno cadastrado.</td></tr>';
 }
 $("#studentSearch").oninput=e=>renderStudents(e.target.value);
 
