@@ -62,6 +62,12 @@ function clearTeacherForm(){
   $("#teacherEditorTitle").textContent="Cadastro de professor";
   $("#teacherStatusBadge").textContent="Ativo";
   $("#teacherStatusBadge").className="status active";
+  $("#teacherPhotoBtn").disabled=true;
+  $("#teacherPhotoImg").hidden=true;
+  $("#teacherPhotoImg").removeAttribute("src");
+  $("#teacherPhotoFallback").hidden=false;
+  $("#teacherPhotoFallback").textContent="—";
+  $("#teacherPhotoAction").textContent="Enviar foto";
   $("#teacherCreateAccessBtn").hidden=false;
   $("#teacherResetAccessBtn").hidden=true;
   teacherSubjectCache=[]; teacherAssignmentCache=[]; teacherAccessCache=null;
@@ -122,6 +128,8 @@ function fillTeacherForm(t){
   $("#teacherSubjectsManager").hidden=false;
   $("#teacherNeedsSaveAllocation").hidden=true;
   $("#teacherAllocationManager").hidden=false;
+  $("#teacherPhotoBtn").disabled=false;
+  if(window.DaegonPhotos?.renderTeacherPhoto)window.DaegonPhotos.renderTeacherPhoto(t);
 }
 function renderTeacherList(query){
   var q=(query||"").toLowerCase().trim();
@@ -269,6 +277,7 @@ $("#teacherForm")&&$("#teacherForm").addEventListener("submit",async function(e)
   try{
     var saved=await DaegonAuth.saveTeacher(data);
     fillTeacherForm(saved);
+    if(window.DaegonPhotos?.renderTeacherPhoto)window.DaegonPhotos.renderTeacherPhoto(saved);
     await loadTeachers();
     await Promise.all([loadTeacherSubjects(),loadTeacherPeriods(),loadTeacherAccess()]);
     teacherMessage("Professor gravado com sucesso.","ok");
