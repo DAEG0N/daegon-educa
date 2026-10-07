@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=4">
+<link rel="stylesheet" href="./styles.css?v=5">
 </head>
 <body>
 <header class="global-header">
@@ -26,6 +26,7 @@
 
   <nav class="top-nav" aria-label="Navegação principal">
     <button class="nav active" data-view="dashboard">Início</button>
+    <button class="nav" data-view="agenda">Agenda</button>
     <button class="nav" data-view="students">Alunos</button>
     <button class="nav" data-view="guardians">Responsáveis</button>
     <button class="nav" data-view="enrollments">Matrículas</button>
@@ -88,6 +89,87 @@
         <div><span class="dot"></span><div><b>Avaliações do 4º bimestre</b><small>156 destinatários · App</small></div><time>ontem</time></div>
       </div>
     </article>
+  </div>
+</section>
+
+
+<section id="agenda" class="view">
+  <div class="page-toolbar">
+    <div><p>GESTÃO / AGENDA</p><h2>Agenda institucional</h2></div>
+    <div><button class="secondary" id="clearAgendaForm" type="button">Limpar</button></div>
+  </div>
+
+  <div class="agenda-layout">
+    <form id="agendaForm" class="card agenda-form">
+      <div class="agenda-form-head">
+        <div><p>NOVO AGENDAMENTO</p><h3>Criar evento no Google Agenda</h3></div>
+        <span class="integration-badge">Google Agenda</span>
+      </div>
+
+      <div class="agenda-grid">
+        <label class="wide">Nome da reunião
+          <input name="title" id="agendaTitle" required placeholder="Ex.: Reunião de responsáveis">
+        </label>
+
+        <label>Data
+          <input name="date" id="agendaDate" type="date" required>
+        </label>
+
+        <label>Agenda
+          <input name="calendar" id="agendaCalendar" value="Agenda institucional" placeholder="Ex.: Secretaria">
+        </label>
+
+        <label>Início
+          <input name="start" id="agendaStart" type="time" required>
+        </label>
+
+        <label>Término
+          <input name="end" id="agendaEnd" type="time" required>
+        </label>
+
+        <label class="wide">Convidados
+          <textarea name="guests" id="agendaGuests" rows="2" placeholder="E-mails separados por vírgula"></textarea>
+          <small>Os convidados também são incluídos no convite .ics.</small>
+        </label>
+
+        <label>Notificar com antecedência
+          <select name="reminder" id="agendaReminder">
+            <option value="10">10 minutos</option>
+            <option value="30" selected>30 minutos</option>
+            <option value="60">1 hora</option>
+            <option value="1440">1 dia</option>
+          </select>
+        </label>
+
+        <div class="agenda-notify">
+          <span>Notificações</span>
+          <label><input type="checkbox" id="agendaNotifyDisplay" checked> Área de trabalho</label>
+          <label><input type="checkbox" id="agendaNotifyEmail" checked> E-mail</label>
+        </div>
+
+        <label class="wide">Local
+          <input name="location" id="agendaLocation" placeholder="Sala, endereço ou link da reunião">
+        </label>
+
+        <label class="wide">Descrição
+          <textarea name="description" id="agendaDescription" rows="4" placeholder="Informações adicionais"></textarea>
+        </label>
+      </div>
+
+      <div class="agenda-actions">
+        <button type="button" class="secondary" id="downloadAgendaIcs">Baixar convite .ics</button>
+        <button type="submit" class="primary">Abrir no Google Agenda</button>
+      </div>
+      <p class="agenda-help">O Google Agenda abrirá com os dados preenchidos para você revisar e clicar em Salvar.</p>
+    </form>
+
+    <aside class="card agenda-history-card">
+      <div class="card-head">
+        <div><p>HISTÓRICO LOCAL</p><h3>Agendamentos recentes</h3></div>
+      </div>
+      <div id="agendaHistory" class="agenda-history"></div>
+      <small class="agenda-history-note">Este histórico fica salvo neste navegador.</small>
+    </aside>
   </div>
 </section>
 
