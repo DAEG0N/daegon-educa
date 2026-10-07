@@ -241,10 +241,10 @@
     let q = sb.from("teacher_assignments")
       .select("id,class_id,subject_id,workload_hours,classes(id,name,academic_period_id),subjects(id,name,code)")
       .eq("teacher_id", teacherId);
-    if (periodId) q = q.eq("classes.academic_period_id", periodId);
     const { data, error } = await q;
     if (error) throw error;
-    return data || [];
+    const rows = data || [];
+    return periodId ? rows.filter(row => row.classes?.academic_period_id === periodId) : rows;
   }
 
   async function addTeacherAssignment(teacherId, classId, subjectId, workloadHours) {
