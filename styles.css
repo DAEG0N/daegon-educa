@@ -234,3 +234,27 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
 .teacher-access-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:10px}
 @media(max-width:1000px){.teacher-layout{grid-template-columns:1fr}.teacher-list-card{max-height:300px;overflow:auto}.teacher-grid{grid-template-columns:1fr 1fr}.allocation-toolbar{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.teacher-grid,.teacher-dual-list,.teacher-web-grid,.allocation-toolbar{grid-template-columns:1fr}.teacher-grid .wide{grid-column:auto}.teacher-form-actions,.teacher-access-actions{flex-direction:column-reverse}.teacher-form-actions button,.teacher-access-actions button{width:100%}}
+
+
+/* Passo 5 — Integração AZ / Lex */
+.integration-shell{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px}
+.integration-tree{height:max-content}.integration-tree-title{display:grid;gap:3px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.integration-tree-title b{font-size:12px}.integration-tree-title small{font-size:8px;color:var(--muted)}
+.integration-node{width:100%;border:0;background:transparent;text-align:left;padding:10px 8px;font-size:9px;font-weight:600}
+.integration-node.active{background:#eaf4ec;color:var(--green);border-radius:6px}
+.integration-subnodes{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;padding:8px 4px 12px;border-bottom:1px solid var(--line)}
+.integration-subnodes span{font-size:8px;color:var(--muted)}
+.lex-search{margin-top:10px}.lex-search input{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px;outline:0}
+.lex-user-list{display:grid;margin-top:8px}.lex-user-item{border:0;border-top:1px solid var(--line);background:transparent;padding:10px 4px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}
+.lex-user-item:first-child{border-top:0}.lex-user-item:hover{background:var(--bg)}.lex-user-item span{display:grid;gap:3px}.lex-user-item b{font-size:9px}.lex-user-item small{font-size:8px;color:var(--muted)}.lex-user-item em{font-style:normal}
+.lex-editor{min-height:560px}.lex-section{padding:14px 0;border-top:1px solid var(--line)}.lex-section:first-of-type{border-top:0;padding-top:0}
+.lex-section h4{font-size:11px;margin:0 0 10px}
+.lex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.lex-grid .wide{grid-column:span 2}
+.lex-grid label,.lex-class-toolbar label{display:grid;gap:5px;font-size:9px}
+.lex-grid input,.lex-grid select,.lex-inline input,.lex-inline select,.lex-class-toolbar input,.lex-class-toolbar select{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:9px;outline:0}
+.lex-inline{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.lex-chip-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.lex-chip{display:inline-flex;align-items:center;gap:6px;background:#eef3ef;border:1px solid var(--line);border-radius:99px;padding:5px 8px;font-size:8px}.lex-chip button{border:0;background:transparent;cursor:pointer}
+.lex-empty-inline,.lex-current-link{display:block;font-size:8px;color:var(--muted);margin-top:8px}
+.lex-class-toolbar{display:grid;grid-template-columns:1fr 1.3fr 1fr auto;gap:8px;align-items:end;margin-bottom:10px}
+@media(max-width:1000px){.integration-shell{grid-template-columns:1fr}.integration-tree{max-height:330px;overflow:auto}.lex-grid{grid-template-columns:1fr 1fr}.lex-class-toolbar{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.lex-grid,.lex-inline,.lex-class-toolbar{grid-template-columns:1fr}.lex-grid .wide{grid-column:auto}}
