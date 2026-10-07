@@ -178,3 +178,22 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
 .copy-field{display:grid;grid-template-columns:1fr auto;gap:7px}
 @media(max-width:900px){.access-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.access-search,.copy-field{grid-template-columns:1fr}}
+
+
+/* Passo 3 — Feriados e datas imprensadas */
+.holiday-layout{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);gap:12px}
+.holiday-form{height:max-content}
+.holiday-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.holiday-grid label{display:grid;gap:5px;font-size:9px}
+.holiday-grid .wide{grid-column:1/-1}
+.holiday-grid input,.holiday-grid select{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:10px;outline:0;width:100%}
+.holiday-grid input:focus,.holiday-grid select:focus{border-color:#91ab9e;box-shadow:0 0 0 3px rgba(47,125,88,.08)}
+.holiday-check{display:flex!important;gap:16px!important;padding:10px 0 2px}
+.holiday-check label{display:flex!important;align-items:center;gap:6px}
+.finance-rule-note{margin-top:12px;padding:11px;border:1px solid #d7e5c6;background:#f2f8e9;border-radius:7px;display:grid;gap:3px}
+.finance-rule-note b{font-size:9px;color:var(--green)}
+.finance-rule-note span{font-size:8px;color:var(--muted);line-height:1.5}
+.holiday-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:13px}
+.holiday-table table{min-width:780px}
+@media(max-width:900px){.holiday-layout{grid-template-columns:1fr}}
+@media(max-width:600px){.holiday-grid{grid-template-columns:1fr}.holiday-grid .wide{grid-column:auto}.holiday-check{flex-direction:column;gap:8px!important}.holiday-actions{flex-direction:column-reverse}.holiday-actions button{width:100%}}
