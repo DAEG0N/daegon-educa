@@ -618,6 +618,50 @@
     return data;
   }
 
+
+  async function getYearStartRoutine(periodId) {
+    if (!state.profile || !periodId) return null;
+    const { data: routine, error } = await sb.from("annual_routines")
+      .select("id,academic_period_id,status,started_at,completed_at,created_at")
+      .eq("institution_id", state.profile.institution_id)
+      .eq("academic_period_id", periodId)
+      .eq("routine_type", "year_start")
+      .maybeSingle();
+    if (error) throw error;
+    if (!routine) return null;
+
+    const { data: items, error: itemsError } = await sb.from("annual_routine_items")
+      .select("id,item_key,sequence,title,source_step,target_view,target_tab,dependency_note,status,notes,completed_at,completed_by")
+      .eq("routine_id", routine.id)
+      .order("sequence");
+    if (itemsError) throw itemsError;
+    return { ...routine, items: items || [] };
+  }
+
+  async function createYearStartRoutine(periodId) {
+    const { data, error } = await sb.rpc("create_year_start_routine", {
+      p_academic_period_id: periodId
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateYearRoutineItem(itemId, status, notes) {
+    const payload = {
+      status,
+      notes: notes || null,
+      completed_at: status === "completed" ? new Date().toISOString() : null,
+      completed_by: status === "completed" ? state.profile?.id || null : null
+    };
+    const { data, error } = await sb.from("annual_routine_items")
+      .update(payload)
+      .eq("id", itemId)
+      .select("id,status,notes,completed_at,completed_by")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
   window.DaegonAuth = {
     sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword,
@@ -632,6 +676,7 @@
     listLearningClassLinks, addLearningClassLink, removeLearningClassLink,
     listAcademicCourses, listDocumentTypes, listDocumentPendencies,
     prepareDocumentReminder, markDocumentReminderSent,
-    listStudentsForPhotos, signedProfilePhotoUrl, uploadProfilePhoto, removeProfilePhoto
+    listStudentsForPhotos, signedProfilePhotoUrl, uploadProfilePhoto, removeProfilePhoto,
+    getYearStartRoutine, createYearStartRoutine, updateYearRoutineItem
   };
 })();
