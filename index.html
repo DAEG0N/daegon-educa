@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=12">
+<link rel="stylesheet" href="./styles.css?v=13">
 </head>
 <body>
 <header class="global-header">
@@ -808,10 +808,136 @@
 </section>
 
 <section id="communication" class="view">
-  <div class="page-toolbar"><div><p>COMUNICAÇÃO</p><h2>Mensagens & Comunicados</h2></div><button class="primary" id="newMessageBtn">+ Novo comunicado</button></div>
-  <div class="comm-grid">
-    <article class="card"><p>NOVO ENVIO</p><h3>Comunicado rápido</h3><div class="agenda-empty"><b>Nenhum público cadastrado</b><small>Os destinatários serão preenchidos somente com alunos, responsáveis e professores reais.</small></div></article>
-    <article class="card"><p>HISTÓRICO</p><h3>Últimos comunicados</h3><div class="agenda-empty"><b>Nenhum comunicado enviado</b><small>O histórico aparecerá após envios reais.</small></div></article>
+  <div class="page-toolbar">
+    <div><p>COMUNICAÇÃO / HUST ENVIOS</p><h2>Comunicação</h2></div>
+  </div>
+
+  <div class="communication-tabs">
+    <button class="active" type="button" data-communication-tab="lists">Listas de transmissão</button>
+    <button type="button" data-communication-tab="messages">Comunicados</button>
+  </div>
+
+  <div class="communication-panel active" data-communication-panel="lists">
+    <div id="broadcastLocked" class="card">
+      <div class="agenda-empty">
+        <b>Entre com uma conta autorizada</b>
+        <small>Administrador, Secretaria ou Comunicação podem gerenciar listas de transmissão.</small>
+      </div>
+    </div>
+
+    <div id="broadcastManager" hidden>
+      <div class="broadcast-kpis">
+        <article class="card"><span>Total de listas</span><strong id="broadcastListCount">0</strong><small>Atualização agora</small></article>
+        <article class="card"><span>Total de contatos</span><strong id="broadcastContactCount">0</strong><small>Somando todas as listas</small></article>
+      </div>
+
+      <div id="broadcastListView">
+        <div class="card">
+          <div class="card-head">
+            <div><p>GERENCIAR LISTAS</p><h3>Listas de transmissão</h3></div>
+            <button class="primary" id="newBroadcastListBtn" type="button">+ Nova lista</button>
+          </div>
+          <div class="table-card broadcast-table">
+            <table>
+              <thead><tr><th>Nome da lista</th><th>Quantidade de contatos</th><th>Status</th><th></th></tr></thead>
+              <tbody id="broadcastListRows"><tr><td colspan="4">Nenhuma lista cadastrada.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="broadcastDetailView" hidden>
+        <div class="card">
+          <div class="broadcast-detail-head">
+            <div>
+              <button class="link-btn" id="broadcastBackBtn" type="button">← Voltar</button>
+              <p>LISTA</p>
+              <h3 id="broadcastDetailTitle">Lista</h3>
+            </div>
+            <div class="broadcast-detail-actions">
+              <button class="secondary" id="broadcastRenameBtn" type="button">Editar nome</button>
+            </div>
+          </div>
+
+          <div class="broadcast-import-grid">
+            <div class="broadcast-import-card">
+              <p>IMPORTAR CONTATOS</p>
+              <h4>Planilha CSV</h4>
+              <label>Arquivo CSV
+                <input id="broadcastCsvFile" type="file" accept=".csv,text/csv">
+              </label>
+              <div class="broadcast-format-note">
+                <b>Formato esperado</b>
+                <span>Somente duas colunas: Nome e Telefone.</span>
+              </div>
+              <div id="broadcastCsvPreview" class="broadcast-preview">
+                <span>Nenhum arquivo selecionado.</span>
+              </div>
+              <button class="primary" id="broadcastImportBtn" type="button" disabled>Importar contatos</button>
+              <div id="broadcastImportMessage" class="access-message"></div>
+            </div>
+
+            <div class="broadcast-check-card">
+              <p>CONFERÊNCIA</p>
+              <h4>Planilha × importação</h4>
+              <div class="broadcast-check-stats">
+                <div><span>Linhas da planilha</span><strong id="broadcastSourceRows">—</strong></div>
+                <div><span>Importados</span><strong id="broadcastImportedRows">—</strong></div>
+                <div><span>Ignorados</span><strong id="broadcastSkippedRows">—</strong></div>
+              </div>
+              <div id="broadcastCheckStatus" class="agenda-empty">
+                <b>Aguardando importação</b>
+                <small>Depois do carregamento, confira se a quantidade importada corresponde à planilha.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-head broadcast-contact-head">
+            <div><p>CONTATOS</p><h3>Contatos da lista</h3></div>
+            <span id="broadcastDetailCount" class="status">0 contatos</span>
+          </div>
+          <div class="table-card broadcast-contact-table">
+            <table>
+              <thead><tr><th>Contato</th><th>Telefone</th><th>Linha de origem</th></tr></thead>
+              <tbody id="broadcastContactRows"><tr><td colspan="3">Nenhum contato importado.</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="broadcast-import-history">
+            <p>HISTÓRICO DE IMPORTAÇÕES</p>
+            <div id="broadcastImportHistory" class="broadcast-history-list">
+              <span>Nenhuma importação registrada.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="communication-panel" data-communication-panel="messages">
+    <div class="comm-grid">
+      <article class="card"><p>NOVO ENVIO</p><h3>Comunicado rápido</h3><div class="agenda-empty"><b>Envios ainda não implementados</b><small>Este passo trata somente da atualização das listas de transmissão.</small></div></article>
+      <article class="card"><p>HISTÓRICO</p><h3>Últimos comunicados</h3><div class="agenda-empty"><b>Nenhum comunicado enviado</b><small>O histórico aparecerá em um passo específico de envios.</small></div></article>
+    </div>
+  </div>
+
+  <div class="modal" id="broadcastListModal">
+    <form id="broadcastListForm">
+      <button type="button" class="close" id="broadcastListClose">×</button>
+      <p>LISTA DE TRANSMISSÃO</p>
+      <h2 id="broadcastListModalTitle">Nova lista</h2>
+      <input type="hidden" id="broadcastListId">
+      <div class="form-grid">
+        <label style="grid-column:1/-1">Nome da lista
+          <input id="broadcastListName" required>
+        </label>
+      </div>
+      <div class="teacher-form-actions">
+        <button class="secondary" id="broadcastListCancel" type="button">Cancelar</button>
+        <button class="primary" type="submit">Salvar lista</button>
+      </div>
+      <div id="broadcastListMessage" class="access-message"></div>
+    </form>
   </div>
 </section>
 
@@ -867,4 +993,5 @@
 <script src="documents.js"></script>
 <script src="photos.js"></script>
 <script src="routine.js"></script>
+<script src="communication.js"></script>
 </body></html>
