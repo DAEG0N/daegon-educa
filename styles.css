@@ -197,3 +197,7 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
 .holiday-table table{min-width:780px}
 @media(max-width:900px){.holiday-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.holiday-grid{grid-template-columns:1fr}.holiday-grid .wide{grid-column:auto}.holiday-check{flex-direction:column;gap:8px!important}.holiday-actions{flex-direction:column-reverse}.holiday-actions button{width:100%}}
+
+.holiday-year-label{display:grid;gap:4px;font-size:8px;color:var(--muted)}
+.holiday-year-label select{min-width:100px}
+.holiday-active{display:flex!important;align-items:center;gap:6px}
