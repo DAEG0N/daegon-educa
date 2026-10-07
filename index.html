@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=5">
+<link rel="stylesheet" href="./styles.css?v=6">
 </head>
 <body>
 <header class="global-header">
@@ -20,13 +20,13 @@
       <button class="search-btn" id="searchBtn">⌕ Pesquisar <kbd>Ctrl K</kbd></button>
       <button class="icon-btn">◔</button>
       <button class="primary" id="quickBtn">+ Novo</button>
-      <div class="user-pill"><div class="avatar">DE</div><div><b>Usuário</b><small>Não autenticado</small></div></div>
+      <div class="user-pill" id="userPill" role="button" tabindex="0"><div class="avatar" id="userAvatar">DE</div><div><b id="userName">Entrar</b><small id="userRole">Não autenticado</small></div></div>
     </div>
   </div>
 
   <nav class="top-nav" aria-label="Navegação principal">
     <button class="nav active" data-view="dashboard">Início</button>
-    <button class="nav" data-view="agenda">Agenda</button>
+    <button class="nav" data-view="agenda">Agenda</button>\n    <button class="nav" data-view="access">Acessos</button>
     <button class="nav" data-view="students">Alunos</button>
     <button class="nav" data-view="guardians">Responsáveis</button>
     <button class="nav" data-view="enrollments">Matrículas</button>
@@ -144,6 +144,51 @@
   </div>
 </section>
 
+<section id="access" class="view">
+  <div class="page-toolbar"><div><p>ADMINISTRAÇÃO / SEGURANÇA</p><h2>Gestão de acessos</h2></div></div>
+  <div class="access-layout">
+    <article class="card access-session-card">
+      <p>SESSÃO ADMINISTRATIVA</p>
+      <div id="accessSignedOut">
+        <h3>Entrar no Daegon Educa</h3>
+        <form id="accessLoginForm" class="access-form">
+          <label>E-mail<input id="accessLoginEmail" type="email" autocomplete="username" required></label>
+          <label>Senha<input id="accessLoginPassword" type="password" autocomplete="current-password" required></label>
+          <button class="primary" type="submit">Entrar</button>
+        </form>
+        <details class="first-admin">
+          <summary>Primeiro acesso do administrador</summary>
+          <form id="bootstrapForm" class="access-form">
+            <label>Nome completo<input id="bootstrapFullName" autocomplete="name" required></label>
+            <label>E-mail administrativo<input id="bootstrapEmail" type="email" autocomplete="email" required></label>
+            <label>Código de ativação<input id="bootstrapCode" autocomplete="off" required></label>
+            <button class="secondary" type="submit">Ativar primeiro administrador</button>
+          </form>
+        </details>
+      </div>
+      <div id="accessSignedIn" hidden>
+        <div class="signed-user"><div><b id="accessCurrentName">—</b><small id="accessCurrentRole">—</small></div><button class="secondary" id="accessSignOutBtn" type="button">Sair</button></div>
+        <form id="myPasswordForm" class="access-form compact">
+          <h3>Alterar minha senha</h3>
+          <label>Nova senha<input id="myNewPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Confirmar nova senha<input id="myNewPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button class="secondary" type="submit">Alterar senha</button>
+        </form>
+      </div>
+      <div id="accessAuthMessage" class="access-message"></div>
+    </article>
+    <article class="card access-manager-card">
+      <div class="card-head"><div><p>CONTAS CADASTRADAS</p><h3>Aluno, responsável, professor ou funcionário</h3></div></div>
+      <div id="accessLocked" class="agenda-empty"><b>Entre com uma conta autorizada</b><small>Somente Administrador e Secretaria podem consultar e redefinir acessos.</small></div>
+      <div id="accessManager" hidden>
+        <div class="access-search"><input id="accessSearchInput" placeholder="Pesquisar nome, login ou e-mail"><button class="primary" id="accessSearchBtn" type="button">Pesquisar</button></div>
+        <div class="table-card access-table"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Login</th><th>E-mail</th><th>Status</th><th>Última redefinição</th><th></th></tr></thead><tbody id="accessRows"><tr><td colspan="7">Nenhuma conta cadastrada.</td></tr></tbody></table></div>
+      </div>
+    </article>
+  </div>
+  <div class="modal" id="temporaryPasswordModal"><div class="temporary-password-box"><button type="button" class="close" id="closeTemporaryPassword">×</button><p>SENHA TEMPORÁRIA</p><h2>Redefinição concluída</h2><p class="temporary-help">A senha abaixo é exibida somente agora. Ela não é armazenada em texto puro no Daegon Educa.</p><label>Login<input id="temporaryLogin" readonly></label><label>Senha temporária<div class="copy-field"><input id="temporaryPassword" readonly><button class="secondary" id="copyTemporaryPassword" type="button">Copiar</button></div></label></div></div>
+</section>
+
 <section id="search" class="view">
   <div class="page-toolbar"><div><p>PESQUISA GLOBAL</p><h2>Encontre qualquer registro</h2></div></div>
   <div class="global-search"><input id="globalSearchInput" placeholder="Nome do aluno, matrícula, responsável, turma..."><button class="primary">Pesquisar</button></div>
@@ -242,5 +287,5 @@
 
 <div class="command" id="command"><div class="command-box"><input id="commandInput" placeholder="Pesquisar aluno, matrícula, módulo..."><div id="commandResults"></div><footer>Ctrl K para abrir · Esc para fechar</footer></div></div>
 <div class="toast" id="toast"></div>
-<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>\n<script src="supabase-client.js"></script>\n<script src="app.js"></script>
 </body></html>
