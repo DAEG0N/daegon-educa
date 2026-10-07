@@ -1,7 +1,7 @@
 var riaPeriods=[];
 var riaRoutine=null;
 
-var riaImplementedSteps=new Set([3,4,5]);
+var riaImplementedSteps=new Set([3,4,5,9]);
 
 function riaAllowed(){
   var p=DaegonAuth.state.profile;
@@ -43,6 +43,10 @@ function riaStepNote(item){
 }
 function openRiaTarget(item){
   if(!riaCanOpen(item))return;
+  if(item.target_view==="communication"&&window.DaegonCommunication?.showLists){
+    window.DaegonCommunication.showLists();
+    return;
+  }
   switchView(item.target_view);
   if(item.target_view==="teachers"&&item.target_tab){
     setTimeout(function(){
