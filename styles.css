@@ -364,3 +364,42 @@ th{font:8px var(--mono);color:var(--muted);background:#fafbfa;font-weight:500}td
   .ria-item-controls button{width:100%}
   .ria-period-control select{min-width:0;width:100%}
 }
+
+
+/* Passo 9 — Listas de transmissão */
+.communication-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.communication-tabs button{border:0;background:transparent;padding:9px 11px;font-size:9px;color:var(--muted);border-bottom:2px solid transparent}
+.communication-tabs button.active{color:var(--ink);border-color:var(--green)}
+.communication-panel{display:none}.communication-panel.active{display:block}
+.broadcast-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.broadcast-kpis article{display:grid;gap:4px}.broadcast-kpis span{font-size:8px;color:var(--muted)}.broadcast-kpis strong{font:24px var(--mono)}.broadcast-kpis small{font-size:8px;color:var(--muted)}
+.broadcast-table table{min-width:680px}
+.broadcast-detail-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.broadcast-detail-head p,.broadcast-import-card>p,.broadcast-check-card>p,.broadcast-import-history>p{font:8px var(--mono);color:var(--muted);letter-spacing:.1em;margin:0}
+.broadcast-detail-head h3,.broadcast-import-card h4,.broadcast-check-card h4{margin:4px 0 0;font-size:14px}
+.broadcast-detail-actions{display:flex;gap:7px}
+.link-btn{border:0;background:transparent;color:var(--green);font-size:8px;padding:0 0 7px;cursor:pointer}
+.broadcast-import-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-bottom:16px}
+.broadcast-import-card,.broadcast-check-card{border:1px solid var(--line);border-radius:7px;padding:13px}
+.broadcast-import-card label{display:grid;gap:5px;font-size:9px;margin-top:12px}
+.broadcast-import-card input[type=file]{border:1px solid var(--line);border-radius:6px;padding:9px;background:var(--panel);width:100%}
+.broadcast-format-note{display:grid;gap:3px;background:var(--bg);border-radius:6px;padding:9px;margin:9px 0}
+.broadcast-format-note b{font-size:8px}.broadcast-format-note span{font-size:8px;color:var(--muted)}
+.broadcast-preview{min-height:70px;border:1px dashed var(--line);border-radius:6px;padding:9px;margin-bottom:9px;display:grid;gap:7px}
+.broadcast-preview>span{font-size:8px;color:var(--muted)}
+.broadcast-preview>div:first-child{display:grid;gap:3px}.broadcast-preview b{font-size:9px}.broadcast-preview small{font-size:8px;color:var(--muted)}
+.broadcast-preview-counts{display:flex;gap:8px;flex-wrap:wrap}.broadcast-preview-counts span{font-size:8px;background:#eef3ef;border-radius:99px;padding:4px 7px}
+.broadcast-preview-issues{display:grid;gap:3px;background:#fff8e8;border:1px solid #ead9a8;border-radius:6px;padding:7px}.broadcast-preview-issues span{font-size:7px;color:var(--muted)}
+.broadcast-import-card .primary{width:100%}
+.broadcast-check-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}
+.broadcast-check-stats>div{background:var(--bg);border-radius:6px;padding:9px;display:grid;gap:4px}
+.broadcast-check-stats span{font-size:7px;color:var(--muted)}.broadcast-check-stats strong{font:16px var(--mono)}
+.broadcast-contact-head{margin-top:4px}.broadcast-contact-table table{min-width:650px}
+.broadcast-import-history{margin-top:16px;border-top:1px solid var(--line);padding-top:13px}
+.broadcast-history-list{display:grid;margin-top:8px}
+.broadcast-history-list>span{font-size:8px;color:var(--muted)}
+.broadcast-history-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding:9px 0}
+.broadcast-history-item:first-child{border-top:0}.broadcast-history-item>div{display:grid;gap:3px}.broadcast-history-item>div:last-child{justify-items:end}
+.broadcast-history-item b{font-size:9px}.broadcast-history-item small{font-size:8px;color:var(--muted)}.broadcast-history-item strong{font:10px var(--mono)}
+@media(max-width:850px){.broadcast-import-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.broadcast-kpis,.broadcast-check-stats{grid-template-columns:1fr}.broadcast-detail-head{flex-direction:column}.broadcast-detail-actions{width:100%}.broadcast-detail-actions button{width:100%}}
