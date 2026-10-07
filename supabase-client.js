@@ -205,7 +205,7 @@
   async function listClasses(periodId) {
     if (!state.profile) return [];
     let q = sb.from("classes")
-      .select("id,name,academic_period_id,active")
+      .select("id,name,unit_id,academic_period_id,active")
       .eq("institution_id", state.profile.institution_id)
       .eq("active", true)
       .order("name");
@@ -355,9 +355,14 @@
   }
   async function getLearningGuardianLink(studentUserId){
     const {data,error}=await sb.from("learning_platform_user_guardians")
-      .select("id,guardian_platform_user_id,learning_platform_users!learning_platform_user_guardians_guardian_platform_user_id_fkey(id,full_name)")
+      .select("id,guardian_platform_user_id")
       .eq("student_platform_user_id",studentUserId).maybeSingle();
-    if(error) throw error; return data||null;
+    if(error) throw error;
+    if(!data) return null;
+    const {data:guardian,error:gError}=await sb.from("learning_platform_users")
+      .select("id,full_name").eq("id",data.guardian_platform_user_id).single();
+    if(gError) throw gError;
+    return {...data, guardian};
   }
   async function setLearningGuardian(studentUserId,guardianUserId){
     if(!state.profile) throw new Error("authentication_required");
