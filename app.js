@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const titles={dashboard:["Geral / Início","Início"],agenda:["Gestão / Agenda","Agenda institucional"],access:["Administração / Segurança","Gestão de acessos"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
+const titles={dashboard:["Geral / Início","Início"],agenda:["Gestão / Agenda","Agenda institucional"],access:["Administração / Segurança","Gestão de acessos"],holidays:["Configuração / Calendário","Feriados e datas imprensadas"],search:["Geral / Pesquisa","Pesquisa global"],students:["Secretaria / Cadastros","Alunos"],guardians:["Secretaria / Cadastros","Responsáveis"],enrollments:["Secretaria / Matrículas","Matrículas"],documents:["Secretaria / Documentos","Documentos"],classes:["Acadêmico / Estrutura","Turmas & Grade"],diary:["Acadêmico / Diário","Diário de Classe"],attendance:["Acadêmico / Diário","Frequência"],grades:["Acadêmico / Avaliações","Notas & Avaliações"],reportcards:["Acadêmico / Boletins","Central de Boletins"],finance:["Gestão / Financeiro","Financeiro"],communication:["Gestão / Comunicação","Comunicação"],portal:["Gestão / Portais","Portal & App"]};
 
 let students=[];
 const guardians=[];
@@ -332,6 +332,136 @@ $("#copyTemporaryPassword")?.addEventListener("click",async()=>{
 window.addEventListener("daegon-auth",renderAccessSession);
 DaegonAuth.refresh().then(renderAccessSession).catch(()=>accessMessage("Não foi possível iniciar a autenticação.","error"));
 
+
+
+let holidayCache=[];
+
+function holidayMessage(text="",kind=""){
+  const el=$("#holidayMessage"); if(!el)return;
+  el.textContent=text;
+  el.className="access-message "+kind;
+}
+function formatHolidayDate(value){
+  if(!value)return "—";
+  const parts=value.split("-");
+  return parts.length===3?parts.reverse().join("/"):value;
+}
+function resetHolidayForm(){
+  $("#holidayId").value="";
+  $("#holidayKind").value="holiday";
+  $("#holidayDate").value="";
+  $("#holidayName").value="";
+  $("#holidayUnit").value="";
+  $("#holidayActive").checked=true;
+  $("#holidayFinance").checked=true;
+  $("#holidayFormEyebrow").textContent="NOVO CADASTRO";
+  $("#holidayFormTitle").textContent="Cadastrar data";
+  $("#holidayCancelEdit").hidden=true;
+  holidayMessage("");
+}
+async function loadHolidayUnits(){
+  const select=$("#holidayUnit");
+  if(!select)return;
+  const current=select.value;
+  const units=await DaegonAuth.listUnits();
+  select.innerHTML='<option value="">Todas as unidades</option>'+units.map(u=>`<option value="${safeText(u.id)}">${safeText(u.name)}</option>`).join("");
+  if([...select.options].some(o=>o.value===current))select.value=current;
+}
+function renderHolidayRows(rows){
+  const el=$("#holidayRows"); if(!el)return;
+  if(!rows.length){
+    el.innerHTML='<tr><td colspan="7">Nenhuma data cadastrada.</td></tr>';
+    return;
+  }
+  el.innerHTML=rows.map(h=>`<tr>
+    <td>${safeText(formatHolidayDate(h.holiday_date))}</td>
+    <td>${safeText(h.name)}</td>
+    <td>${h.kind==="bridge_day"?"Data imprensada":"Feriado"}</td>
+    <td>${safeText(h.units?.name||"Todas as unidades")}</td>
+    <td><span class="status ${h.affects_finance?"active":"pending"}">${h.affects_finance?"Ativo":"Inativo"}</span></td>
+    <td><span class="status ${h.active?"active":"pending"}">${h.active?"Ativo":"Inativo"}</span></td>
+    <td><button class="secondary holiday-edit-btn" type="button" data-holiday-id="${safeText(h.id)}">Editar</button></td>
+  </tr>`).join("");
+
+  $(".holiday-edit-btn").forEach(btn=>btn.onclick=()=>{
+    const h=holidayCache.find(x=>x.id===btn.dataset.holidayId);
+    if(!h)return;
+    $("#holidayId").value=h.id;
+    $("#holidayKind").value=h.kind||"holiday";
+    $("#holidayDate").value=h.holiday_date||"";
+    $("#holidayName").value=h.name||"";
+    $("#holidayUnit").value=h.unit_id||"";
+    $("#holidayActive").checked=!!h.active;
+    $("#holidayFinance").checked=!!h.affects_finance;
+    $("#holidayFormEyebrow").textContent="EDITAR CADASTRO";
+    $("#holidayFormTitle").textContent=h.name||"Editar data";
+    $("#holidayCancelEdit").hidden=false;
+    holidayMessage("");
+    $("#holidayForm").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+async function loadHolidays(){
+  const el=$("#holidayRows");
+  if(el)el.innerHTML='<tr><td colspan="7">Carregando...</td></tr>';
+  try{
+    holidayCache=await DaegonAuth.listHolidays();
+    renderHolidayRows(holidayCache);
+  }catch(e){
+    if(el)el.innerHTML='<tr><td colspan="7">Não foi possível carregar as datas.</td></tr>';
+    holidayMessage("Erro ao consultar feriados: "+(e.message||"erro"),"error");
+  }
+}
+async function renderHolidaySession(){
+  const profile=DaegonAuth.state.profile;
+  const allowed=!!profile&&profile.active&&["administrator","secretary","academic"].includes(profile.role);
+  const locked=$("#holidayLocked"),manager=$("#holidayManager");
+  if(!locked||!manager)return;
+  locked.hidden=allowed;
+  manager.hidden=!allowed;
+  if(allowed){
+    try{
+      await loadHolidayUnits();
+      await loadHolidays();
+    }catch(e){
+      holidayMessage("Não foi possível iniciar o cadastro de feriados: "+(e.message||"erro"),"error");
+    }
+  }
+}
+$("#holidayForm")?.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const data={
+    id:$("#holidayId").value||null,
+    kind:$("#holidayKind").value,
+    holiday_date:$("#holidayDate").value,
+    name:$("#holidayName").value.trim(),
+    unit_id:$("#holidayUnit").value||null,
+    active:$("#holidayActive").checked,
+    affects_finance:$("#holidayFinance").checked
+  };
+  if(!data.holiday_date||!data.name){
+    holidayMessage("Informe a data e o nome.","error");
+    return;
+  }
+  const submit=e.currentTarget.querySelector('button[type="submit"]');
+  submit.disabled=true;
+  holidayMessage("Salvando...");
+  try{
+    await DaegonAuth.saveHoliday(data);
+    resetHolidayForm();
+    await loadHolidays();
+    holidayMessage("Data salva com sucesso.","ok");
+  }catch(err){
+    const duplicate=err?.code==="23505"||String(err?.message||"").toLowerCase().includes("duplicate");
+    holidayMessage(duplicate?"Já existe uma data cadastrada para esta unidade.":"Não foi possível salvar: "+(err.message||"erro"),"error");
+  }finally{
+    submit.disabled=false;
+  }
+});
+$("#holidayCancelEdit")?.addEventListener("click",resetHolidayForm);
+document.querySelector('[data-view="holidays"]')?.addEventListener("click",()=>{
+  if(DaegonAuth.state.profile)renderHolidaySession();
+});
+window.addEventListener("daegon-auth",renderHolidaySession);
 
 function globalMatches(q){
  q=q.toLowerCase().trim(); if(!q)return [];
