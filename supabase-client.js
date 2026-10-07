@@ -62,6 +62,61 @@
     return data;
   }
 
+  async function listUnits() {
+    if (!state.profile) return [];
+    const { data, error } = await sb
+      .from("units")
+      .select("id,name,active")
+      .eq("institution_id", state.profile.institution_id)
+      .eq("active", true)
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function listHolidays() {
+    if (!state.profile) return [];
+    const { data, error } = await sb
+      .from("holidays")
+      .select("id,unit_id,holiday_date,name,kind,affects_finance,active,units(name)")
+      .eq("institution_id", state.profile.institution_id)
+      .order("holiday_date", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function saveHoliday(input) {
+    if (!state.profile) throw new Error("authentication_required");
+    const payload = {
+      institution_id: state.profile.institution_id,
+      unit_id: input.unit_id || null,
+      holiday_date: input.holiday_date,
+      name: input.name,
+      kind: input.kind,
+      affects_finance: !!input.affects_finance,
+      active: !!input.active
+    };
+
+    if (input.id) {
+      const { data, error } = await sb
+        .from("holidays")
+        .update(payload)
+        .eq("id", input.id)
+        .select("id,unit_id,holiday_date,name,kind,affects_finance,active")
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
+    const { data, error } = await sb
+      .from("holidays")
+      .insert(payload)
+      .select("id,unit_id,holiday_date,name,kind,affects_finance,active")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
-  window.DaegonAuth = { sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword };
+  window.DaegonAuth = { sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword, listUnits, listHolidays, saveHoliday };
 })();
