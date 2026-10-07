@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=11">
+<link rel="stylesheet" href="./styles.css?v=12">
 </head>
 <body>
 <header class="global-header">
@@ -53,6 +53,14 @@
 <main>
 <section id="dashboard" class="view active">
   <div class="notice"><span>●</span><div><b>Nenhum período letivo configurado</b><small>Os indicadores aparecerão quando houver dados reais cadastrados.</small></div></div>
+  <div class="routine-entry-card card">
+    <div>
+      <p>ROTINAS ANUAIS</p>
+      <h3>Roteiro de início do ano</h3>
+      <small>Acompanhe em um só lugar as etapas que dependem de diferentes módulos do Daegon Educa.</small>
+    </div>
+    <button class="primary" type="button" data-view="year-start">Abrir RIA</button>
+  </div>
   <div class="kpis">
     <article><span>Alunos ativos</span><strong>—</strong><small>Sem dados</small></article>
     <article><span>Matrículas concluídas</span><strong>—</strong><small>Sem dados</small></article>
@@ -393,6 +401,66 @@
         </form>
       </div>
     </article>
+  </div>
+</section>
+
+
+<section id="year-start" class="view">
+  <div class="page-toolbar">
+    <div><p>INÍCIO / ROTINAS ANUAIS</p><h2>RIA — Roteiro de Início do Ano</h2></div>
+    <div class="ria-period-control">
+      <label>Período letivo
+        <select id="riaPeriod"><option value="">Nenhum período cadastrado</option></select>
+      </label>
+    </div>
+  </div>
+
+  <div id="riaLocked" class="card">
+    <div class="agenda-empty">
+      <b>Entre com uma conta autorizada</b>
+      <small>Administrador, Secretaria ou Acadêmico podem acompanhar esta rotina.</small>
+    </div>
+  </div>
+
+  <div id="riaManager" hidden>
+    <div id="riaNoPeriod" class="card">
+      <div class="agenda-empty">
+        <b>Nenhum período letivo cadastrado</b>
+        <small>O RIA só pode ser iniciado para um período real da instituição.</small>
+      </div>
+    </div>
+
+    <div id="riaNotStarted" class="card" hidden>
+      <div class="ria-start-state">
+        <div>
+          <p>ROTEIRO AINDA NÃO INICIADO</p>
+          <h3 id="riaStartPeriodName">Período</h3>
+          <small>Ao iniciar, o sistema criará os 11 itens definidos no procedimento RIA para este período.</small>
+        </div>
+        <button class="primary" id="riaStartBtn" type="button">Iniciar roteiro</button>
+      </div>
+    </div>
+
+    <div id="riaBoard" hidden>
+      <div class="ria-summary card">
+        <div>
+          <p>PROGRESSO</p>
+          <h3 id="riaPeriodTitle">RIA</h3>
+        </div>
+        <div class="ria-progress-meta">
+          <strong id="riaProgressText">0/11</strong>
+          <span id="riaStatusBadge" class="status pending">Em andamento</span>
+        </div>
+        <div class="ria-progress-track"><span id="riaProgressBar"></span></div>
+      </div>
+
+      <div class="ria-source-note">
+        Este roteiro coordena funções de vários módulos. Os itens com número mantêm a referência ao procedimento original.
+      </div>
+
+      <div id="riaItems" class="ria-items"></div>
+      <div id="riaMessage" class="access-message"></div>
+    </div>
   </div>
 </section>
 
@@ -798,4 +866,5 @@
 <script src="integration.js"></script>
 <script src="documents.js"></script>
 <script src="photos.js"></script>
+<script src="routine.js"></script>
 </body></html>
