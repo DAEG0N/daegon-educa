@@ -120,7 +120,7 @@
   async function listTeachers() {
     if (!state.profile) return [];
     const { data, error } = await sb.from("teachers")
-      .select("id,registration_number,full_name,email,phone,status,cpf,unit_id")
+      .select("id,registration_number,full_name,email,phone,status,cpf,unit_id,photo_path")
       .eq("institution_id", state.profile.institution_id)
       .order("full_name", { ascending: true });
     if (error) throw error;
@@ -512,6 +512,112 @@
     return data;
   }
 
+
+  async function listStudentsForPhotos() {
+    if (!state.profile) return [];
+    const institutionId = state.profile.institution_id;
+    const { data: studentRows, error: studentError } = await sb.from("students")
+      .select("id,registration_number,full_name,status,phone,photo_path")
+      .eq("institution_id", institutionId)
+      .order("full_name");
+    if (studentError) throw studentError;
+    if (!studentRows?.length) return [];
+
+    const ids = studentRows.map(x => x.id);
+    const [enrollRes, linkRes] = await Promise.all([
+      sb.from("enrollments")
+        .select("student_id,class_id,status,updated_at")
+        .eq("institution_id", institutionId)
+        .in("student_id", ids),
+      sb.from("student_guardians")
+        .select("student_id,guardian_id,is_primary,is_financial")
+        .eq("institution_id", institutionId)
+        .in("student_id", ids)
+    ]);
+    if (enrollRes.error) throw enrollRes.error;
+    if (linkRes.error) throw linkRes.error;
+
+    const enrollments = enrollRes.data || [];
+    const links = linkRes.data || [];
+    const classIds = [...new Set(enrollments.map(x=>x.class_id).filter(Boolean))];
+    const guardianIds = [...new Set(links.map(x=>x.guardian_id).filter(Boolean))];
+
+    const [classRes, guardianRes] = await Promise.all([
+      classIds.length ? sb.from("classes").select("id,name").in("id",classIds) : Promise.resolve({data:[],error:null}),
+      guardianIds.length ? sb.from("guardians").select("id,full_name,phone").in("id",guardianIds) : Promise.resolve({data:[],error:null})
+    ]);
+    if (classRes.error) throw classRes.error;
+    if (guardianRes.error) throw guardianRes.error;
+
+    const classMap = new Map((classRes.data||[]).map(x=>[x.id,x]));
+    const guardianMap = new Map((guardianRes.data||[]).map(x=>[x.id,x]));
+
+    return studentRows.map(s=>{
+      const studentEnrollments=enrollments.filter(x=>x.student_id===s.id)
+        .sort((a,b)=>String(b.updated_at||"").localeCompare(String(a.updated_at||"")));
+      const enrollment=studentEnrollments.find(x=>["active","ready","documents","contract","draft"].includes(x.status))||studentEnrollments[0]||null;
+      const studentLinks=links.filter(x=>x.student_id===s.id);
+      const link=studentLinks.find(x=>x.is_primary)||studentLinks.find(x=>x.is_financial)||studentLinks[0]||null;
+      const guardian=link?guardianMap.get(link.guardian_id)||null:null;
+      return {
+        id:s.id,
+        name:s.full_name,
+        reg:s.registration_number||"—",
+        class:enrollment?classMap.get(enrollment.class_id)?.name||"—":"—",
+        status:s.status==="active"?"active":"pending",
+        guardian:guardian?.full_name||"—",
+        phone:s.phone||guardian?.phone||"—",
+        photo_path:s.photo_path||null
+      };
+    });
+  }
+
+  async function signedProfilePhotoUrl(path, expiresIn=3600) {
+    if (!path) return null;
+    const { data, error } = await sb.storage.from("school-files").createSignedUrl(path, expiresIn);
+    if (error) throw error;
+    return data?.signedUrl || null;
+  }
+
+  async function uploadProfilePhoto(personType, personId, blob) {
+    if (!state.profile) throw new Error("authentication_required");
+    if (!["students","teachers"].includes(personType)) throw new Error("invalid_person_type");
+    const path = state.profile.institution_id + "/people/" + personType + "/" + personId + "/profile.jpg";
+    const { error: uploadError } = await sb.storage.from("school-files").upload(path, blob, {
+      contentType:"image/jpeg",
+      cacheControl:"3600",
+      upsert:true
+    });
+    if (uploadError) throw uploadError;
+
+    const { data, error: updateError } = await sb.from(personType)
+      .update({ photo_path:path })
+      .eq("id",personId)
+      .select("id,photo_path")
+      .single();
+    if (updateError) {
+      await sb.storage.from("school-files").remove([path]);
+      throw updateError;
+    }
+    return data;
+  }
+
+  async function removeProfilePhoto(personType, personId, path) {
+    if (!state.profile) throw new Error("authentication_required");
+    if (!["students","teachers"].includes(personType)) throw new Error("invalid_person_type");
+    if (path) {
+      const { error: removeError } = await sb.storage.from("school-files").remove([path]);
+      if (removeError && !String(removeError.message||"").toLowerCase().includes("not found")) throw removeError;
+    }
+    const { data, error } = await sb.from(personType)
+      .update({ photo_path:null })
+      .eq("id",personId)
+      .select("id,photo_path")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   sb.auth.onAuthStateChange(() => setTimeout(refresh, 0));
   window.DaegonAuth = {
     sb, state, refresh, signIn, signOut, bootstrap, accessSearch, resetPassword,
@@ -525,6 +631,7 @@
     listLearningGuardians, getLearningGuardianLink, setLearningGuardian,
     listLearningClassLinks, addLearningClassLink, removeLearningClassLink,
     listAcademicCourses, listDocumentTypes, listDocumentPendencies,
-    prepareDocumentReminder, markDocumentReminderSent
+    prepareDocumentReminder, markDocumentReminderSent,
+    listStudentsForPhotos, signedProfilePhotoUrl, uploadProfilePhoto, removeProfilePhoto
   };
 })();
