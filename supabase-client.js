@@ -78,7 +78,7 @@
     if (!state.profile) return [];
     const { data, error } = await sb
       .from("holidays")
-      .select("id,unit_id,holiday_date,name,kind,affects_finance,active,units(name)")
+      .select("id,unit_id,holiday_date,name,affects_finance,affects_library,active,units(name)")
       .eq("institution_id", state.profile.institution_id)
       .order("holiday_date", { ascending: true });
     if (error) throw error;
@@ -92,8 +92,8 @@
       unit_id: input.unit_id || null,
       holiday_date: input.holiday_date,
       name: input.name,
-      kind: input.kind,
       affects_finance: !!input.affects_finance,
+      affects_library: !!input.affects_library,
       active: !!input.active
     };
 
@@ -102,7 +102,7 @@
         .from("holidays")
         .update(payload)
         .eq("id", input.id)
-        .select("id,unit_id,holiday_date,name,kind,affects_finance,active")
+        .select("id,unit_id,holiday_date,name,affects_finance,affects_library,active")
         .single();
       if (error) throw error;
       return data;
