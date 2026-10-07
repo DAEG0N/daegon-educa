@@ -208,6 +208,16 @@ async function loadTeacherAssignments(){
 async function loadTeacherAccess(){
   var teacherId=$("#teacherId").value;
   if(!teacherId)return;
+  var role=DaegonAuth.state.profile&&DaegonAuth.state.profile.role;
+  if(!["administrator","secretary"].includes(role)){
+    teacherAccessCache=null;
+    $("#teacherWebLogin").value="";
+    $("#teacherWebLogin").readOnly=true;
+    $("#teacherPasswordStatus").value="Somente Adm/Secretaria";
+    $("#teacherCreateAccessBtn").hidden=true;
+    $("#teacherResetAccessBtn").hidden=true;
+    return;
+  }
   teacherAccessCache=await DaegonAuth.getTeacherAccess(teacherId);
   if(teacherAccessCache){
     $("#teacherWebLogin").value=teacherAccessCache.login||"";
