@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css?v=10">
+<link rel="stylesheet" href="./styles.css?v=11">
 </head>
 <body>
 <header class="global-header">
@@ -405,7 +405,7 @@
 <section id="students" class="view">
   <div class="page-toolbar"><div><p>SECRETARIA / CADASTROS</p><h2>Alunos</h2></div><div><button class="secondary" id="exportStudents">Exportar</button><button class="primary" id="newStudentBtn">+ Novo aluno</button></div></div>
   <div class="filters-row"><select><option>Situação: Todos</option><option>Ativos</option><option>Inativos</option></select><select><option>Turma: Todas</option></select><input id="studentSearch" placeholder="Pesquisar aluno..."></div>
-  <div class="table-card"><table><thead><tr><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Situação</th><th>Responsável</th><th>Contato</th><th></th></tr></thead><tbody id="studentRows"></tbody></table></div>
+  <div class="table-card"><table><thead><tr><th>Foto</th><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Situação</th><th>Responsável</th><th>Contato</th><th></th></tr></thead><tbody id="studentRows"></tbody></table></div>
 </section>
 
 <section id="guardians" class="view">
@@ -446,7 +446,16 @@
       <div id="teacherEditorContent" hidden>
         <div class="teacher-editor-head">
           <div><p id="teacherEditorEyebrow">NOVO PROFESSOR</p><h3 id="teacherEditorTitle">Cadastro de professor</h3></div>
-          <span id="teacherStatusBadge" class="status active">Ativo</span>
+          <div class="teacher-head-actions">
+            <button class="profile-photo-button" id="teacherPhotoBtn" type="button" disabled>
+              <span class="profile-photo-frame">
+                <img id="teacherPhotoImg" alt="" hidden>
+                <span id="teacherPhotoFallback">—</span>
+              </span>
+              <small id="teacherPhotoAction">Enviar foto</small>
+            </button>
+            <span id="teacherStatusBadge" class="status active">Ativo</span>
+          </div>
         </div>
 
         <div class="teacher-tabs">
@@ -756,10 +765,37 @@
 
 <div class="modal" id="enrollmentModal"><form id="enrollmentForm"><button type="button" class="close" data-close>×</button><p>NOVA MATRÍCULA</p><h2>Iniciar processo</h2><div class="form-grid"><label>Aluno<input name="name" required></label><label>Turma<select name="class"><option value="">Nenhuma turma cadastrada</option></select></label><label>Tipo<select name="type"><option>Nova</option><option>Rematrícula</option></select></label><label>Turno<select><option>Matutino</option><option>Vespertino</option></select></label></div><button class="primary">Criar matrícula</button></form></div>
 
+
+<div class="modal" id="profilePhotoModal">
+  <div class="profile-photo-modal-box">
+    <button type="button" class="close" id="profilePhotoClose">×</button>
+    <p>ENVIAR FOTO</p>
+    <h2 id="profilePhotoTitle">Foto</h2>
+    <div class="profile-photo-preview">
+      <img id="profilePhotoPreview" alt="Pré-visualização" hidden>
+      <div id="profilePhotoPreviewFallback">Sem foto</div>
+    </div>
+    <label class="profile-photo-file">Escolher arquivo
+      <input id="profilePhotoFile" type="file" accept="image/jpeg,image/png,image/webp">
+    </label>
+    <small class="profile-photo-help">O Daegon ajusta automaticamente a imagem para uso na ficha.</small>
+    <div class="profile-photo-meta" id="profilePhotoMeta"></div>
+    <div class="profile-photo-actions">
+      <button class="secondary" id="profilePhotoRemove" type="button" disabled>Remover</button>
+      <button class="secondary" id="profilePhotoCancel" type="button">Cancelar</button>
+      <button class="primary" id="profilePhotoConfirm" type="button" disabled>Confirmar</button>
+    </div>
+    <div id="profilePhotoMessage" class="access-message"></div>
+  </div>
+</div>
+
 <div class="command" id="command"><div class="command-box"><input id="commandInput" placeholder="Pesquisar aluno, matrícula, módulo..."><div id="commandResults"></div><footer>Ctrl K para abrir · Esc para fechar</footer></div></div>
 <div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>\n<script src="supabase-client.js"></script>\n<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="app.js"></script>
 <script src="teacher.js"></script>
 <script src="integration.js"></script>
 <script src="documents.js"></script>
+<script src="photos.js"></script>
 </body></html>
