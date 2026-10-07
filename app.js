@@ -346,16 +346,25 @@ function formatHolidayDate(value){
   const parts=value.split("-");
   return parts.length===3?parts.reverse().join("/"):value;
 }
+function holidayYearOptions(rows=[]){
+  const select=$("#holidayYear"); if(!select)return;
+  const current=select.value;
+  const years=[...new Set(rows.map(h=>String(h.holiday_date||"").slice(0,4)).filter(Boolean))].sort().reverse();
+  const thisYear=String(new Date().getFullYear());
+  if(!years.includes(thisYear))years.unshift(thisYear);
+  select.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join("");
+  select.value=years.includes(current)?current:years[0];
+}
 function resetHolidayForm(){
   $("#holidayId").value="";
-  $("#holidayKind").value="holiday";
   $("#holidayDate").value="";
   $("#holidayName").value="";
   $("#holidayUnit").value="";
   $("#holidayActive").checked=true;
-  $("#holidayFinance").checked=true;
+  $("#holidayFinance").value="yes";
+  $("#holidayLibrary").value="yes";
   $("#holidayFormEyebrow").textContent="NOVO CADASTRO";
-  $("#holidayFormTitle").textContent="Cadastrar data";
+  $("#holidayFormTitle").textContent="Cadastrar feriado";
   $("#holidayCancelEdit").hidden=true;
   holidayMessage("");
 }
@@ -364,37 +373,37 @@ async function loadHolidayUnits(){
   if(!select)return;
   const current=select.value;
   const units=await DaegonAuth.listUnits();
-  select.innerHTML='<option value="">Todas as unidades</option>'+units.map(u=>`<option value="${safeText(u.id)}">${safeText(u.name)}</option>`).join("");
+  select.innerHTML='<option value="">Sem unidade específica</option>'+units.map(u=>`<option value="${safeText(u.id)}">${safeText(u.name)}</option>`).join("");
   if([...select.options].some(o=>o.value===current))select.value=current;
 }
-function renderHolidayRows(rows){
+function renderHolidayRows(){
   const el=$("#holidayRows"); if(!el)return;
+  const year=$("#holidayYear")?.value;
+  const rows=holidayCache.filter(h=>!year||String(h.holiday_date||"").startsWith(year+"-"));
   if(!rows.length){
-    el.innerHTML='<tr><td colspan="7">Nenhuma data cadastrada.</td></tr>';
+    el.innerHTML='<tr><td colspan="5">Nenhum feriado cadastrado para este ano.</td></tr>';
     return;
   }
   el.innerHTML=rows.map(h=>`<tr>
     <td>${safeText(formatHolidayDate(h.holiday_date))}</td>
     <td>${safeText(h.name)}</td>
-    <td>${h.kind==="bridge_day"?"Data imprensada":"Feriado"}</td>
-    <td>${safeText(h.units?.name||"Todas as unidades")}</td>
-    <td><span class="status ${h.affects_finance?"active":"pending"}">${h.affects_finance?"Ativo":"Inativo"}</span></td>
-    <td><span class="status ${h.active?"active":"pending"}">${h.active?"Ativo":"Inativo"}</span></td>
+    <td>${h.affects_finance?"Sim":"Não"}</td>
+    <td>${h.affects_library?"Sim":"Não"}</td>
     <td><button class="secondary holiday-edit-btn" type="button" data-holiday-id="${safeText(h.id)}">Editar</button></td>
   </tr>`).join("");
 
-  $(".holiday-edit-btn").forEach(btn=>btn.onclick=()=>{
+  $$(".holiday-edit-btn").forEach(btn=>btn.onclick=()=>{
     const h=holidayCache.find(x=>x.id===btn.dataset.holidayId);
     if(!h)return;
     $("#holidayId").value=h.id;
-    $("#holidayKind").value=h.kind||"holiday";
     $("#holidayDate").value=h.holiday_date||"";
     $("#holidayName").value=h.name||"";
     $("#holidayUnit").value=h.unit_id||"";
     $("#holidayActive").checked=!!h.active;
-    $("#holidayFinance").checked=!!h.affects_finance;
+    $("#holidayFinance").value=h.affects_finance?"yes":"no";
+    $("#holidayLibrary").value=h.affects_library?"yes":"no";
     $("#holidayFormEyebrow").textContent="EDITAR CADASTRO";
-    $("#holidayFormTitle").textContent=h.name||"Editar data";
+    $("#holidayFormTitle").textContent=h.name||"Editar feriado";
     $("#holidayCancelEdit").hidden=false;
     holidayMessage("");
     $("#holidayForm").scrollIntoView({behavior:"smooth",block:"start"});
@@ -402,12 +411,13 @@ function renderHolidayRows(rows){
 }
 async function loadHolidays(){
   const el=$("#holidayRows");
-  if(el)el.innerHTML='<tr><td colspan="7">Carregando...</td></tr>';
+  if(el)el.innerHTML='<tr><td colspan="5">Carregando...</td></tr>';
   try{
     holidayCache=await DaegonAuth.listHolidays();
-    renderHolidayRows(holidayCache);
+    holidayYearOptions(holidayCache);
+    renderHolidayRows();
   }catch(e){
-    if(el)el.innerHTML='<tr><td colspan="7">Não foi possível carregar as datas.</td></tr>';
+    if(el)el.innerHTML='<tr><td colspan="5">Não foi possível carregar os feriados.</td></tr>';
     holidayMessage("Erro ao consultar feriados: "+(e.message||"erro"),"error");
   }
 }
@@ -431,15 +441,15 @@ $("#holidayForm")?.addEventListener("submit",async e=>{
   e.preventDefault();
   const data={
     id:$("#holidayId").value||null,
-    kind:$("#holidayKind").value,
     holiday_date:$("#holidayDate").value,
     name:$("#holidayName").value.trim(),
     unit_id:$("#holidayUnit").value||null,
     active:$("#holidayActive").checked,
-    affects_finance:$("#holidayFinance").checked
+    affects_finance:$("#holidayFinance").value==="yes",
+    affects_library:$("#holidayLibrary").value==="yes"
   };
   if(!data.holiday_date||!data.name){
-    holidayMessage("Informe a data e o nome.","error");
+    holidayMessage("Informe a data e o nome do feriado.","error");
     return;
   }
   const submit=e.currentTarget.querySelector('button[type="submit"]');
@@ -447,17 +457,23 @@ $("#holidayForm")?.addEventListener("submit",async e=>{
   holidayMessage("Salvando...");
   try{
     await DaegonAuth.saveHoliday(data);
+    const savedYear=data.holiday_date.slice(0,4);
     resetHolidayForm();
     await loadHolidays();
-    holidayMessage("Data salva com sucesso.","ok");
+    if([...$("#holidayYear").options].some(o=>o.value===savedYear)){
+      $("#holidayYear").value=savedYear;
+      renderHolidayRows();
+    }
+    holidayMessage("Feriado salvo com sucesso.","ok");
   }catch(err){
     const duplicate=err?.code==="23505"||String(err?.message||"").toLowerCase().includes("duplicate");
-    holidayMessage(duplicate?"Já existe uma data cadastrada para esta unidade.":"Não foi possível salvar: "+(err.message||"erro"),"error");
+    holidayMessage(duplicate?"Já existe um feriado cadastrado nessa data para esta unidade.":"Não foi possível salvar: "+(err.message||"erro"),"error");
   }finally{
     submit.disabled=false;
   }
 });
 $("#holidayCancelEdit")?.addEventListener("click",resetHolidayForm);
+$("#holidayYear")?.addEventListener("change",renderHolidayRows);
 document.querySelector('[data-view="holidays"]')?.addEventListener("click",()=>{
   if(DaegonAuth.state.profile)renderHolidaySession();
 });
